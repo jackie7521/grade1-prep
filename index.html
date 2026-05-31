@@ -455,10 +455,10 @@ function renderLesson(){
     </div>`).join("");
 
   const writingHtml = lesson.writing ?
-    `<h3>✏️ 跟著寫一寫 <button class="print-all-btn" onclick='printAll(${JSON.stringify(lesson.writing)})' >🖨️ 列印本頁全部</button></h3>
+    `<h3>✏️ 跟著寫一寫</h3>
     <div class="writing-area">
-      <p style="color:#888;font-size:.9em;margin-bottom:8px">在虛線格裡描寫，跟著淡色字描就會了！想印單一個字練習，按下方 🖨️ 列印。</p>
-      <div class="stroke-grid">${lesson.writing.map(c=>`<div class="stroke-item"><div class="stroke-cell">${c}</div><button class="print-char-btn" onclick="printChar('${c}')">🖨️ 列印 ${c}</button></div>`).join("")}</div>
+      <p style="color:#888;font-size:.9em;margin-bottom:8px">在虛線格裡描寫，跟著淡色字描就會了！想用紙本練習，按上方「🖨️ 列印本週國英數全部寫字練習」。</p>
+      <div class="stroke-grid">${lesson.writing.map(c=>`<div class="stroke-item"><div class="stroke-cell">${c}</div></div>`).join("")}</div>
     </div>` : "";
 
   const quizHtml = lesson.quiz ?
