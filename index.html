@@ -117,12 +117,32 @@
     gap:8px;margin:10px 0;
   }
   .stroke-cell{
-    aspect-ratio:1;border:2px dashed #aaa;background:
+    aspect-ratio:1;border:2.5px dashed #aaa;background:
       linear-gradient(to right,transparent 49%,#ffd 49%,#ffd 51%,transparent 51%),
       linear-gradient(to bottom,transparent 49%,#ffd 49%,#ffd 51%,transparent 51%);
     display:flex;align-items:center;justify-content:center;
-    font-size:2em;color:#FFC0CB;font-weight:bold;border-radius:6px;
+    font-size:4em;line-height:1;color:#F8BBC4;font-weight:bold;border-radius:8px;
   }
+  .stroke-item{display:flex;flex-direction:column;align-items:stretch;gap:6px}
+  .print-char-btn{
+    padding:5px 8px;background:#7AC7E5;color:#fff;border:none;
+    border-radius:8px;font-size:.8em;font-weight:bold;cursor:pointer;
+    transition:transform .15s;
+  }
+  .print-char-btn:hover{transform:translateY(-2px);background:#5AB5D6}
+  .print-all-btn{
+    padding:8px 16px;background:#FF8FA3;color:#fff;border:none;
+    border-radius:10px;font-size:.9em;font-weight:bold;cursor:pointer;
+    margin-left:10px;box-shadow:var(--shadow);
+  }
+  .print-all-btn:hover{background:#E07A8E}
+  .print-week-btn{
+    padding:10px 18px;background:linear-gradient(135deg,#FF8FA3,#7AC7E5);color:#fff;
+    border:none;border-radius:12px;font-size:.85em;font-weight:bold;cursor:pointer;
+    margin-left:14px;box-shadow:var(--shadow);vertical-align:middle;
+  }
+  .print-week-btn:hover{transform:translateY(-2px)}
+  .lesson h2{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
 
   .parent-tip{
     background:#FFF4D6;border-radius:12px;padding:12px 16px;margin:16px 0;
@@ -204,7 +224,7 @@ const curriculum = [
       quiz:{q:"🌸🌸🌸🌸 有幾朵花？",opts:["3","4","5","6"],ans:1},
       writing:["1","2","3","4","5","6","7","8","9","10"]},
     en:{title:"字母 A B C D E", goal:"認識 A-E 大小寫與單字。",
-      items:[{char:"Aa",sound:"A",label:"Apple 🍎"},{char:"Bb",sound:"B",label:"Ball ⚽"},{char:"Cc",sound:"C",label:"Cat 🐱"},{char:"Dd",sound:"D",label:"Dog 🐶"},{char:"Ee",sound:"E",label:"Egg 🥚"}],
+      items:[{char:"Aa",sound:"A. Apple",label:"Apple 🍎"},{char:"Bb",sound:"B. Ball",label:"Ball ⚽"},{char:"Cc",sound:"C. Cat",label:"Cat 🐱"},{char:"Dd",sound:"D. Dog",label:"Dog 🐶"},{char:"Ee",sound:"E. Egg",label:"Egg 🥚"}],
       quiz:{q:"Apple 開頭的字母是？",opts:["A","B","C","D"],ans:0},
       writing:["A","B","C","D","E"]},
     life:{title:"整理我的書包", goal:"知道書包該放什麼，怎麼整齊收納。",
@@ -221,7 +241,7 @@ const curriculum = [
       quiz:{q:"15 比 12 大還是小？",opts:["大","小","一樣"],ans:0},
       writing:["11","12","13","14","15","16","17","18","19","20"]},
     en:{title:"字母 F G H I J", goal:"認識 F-J 大小寫與單字。",
-      items:[{char:"Ff",sound:"F",label:"Fish 🐟"},{char:"Gg",sound:"G",label:"Goat 🐐"},{char:"Hh",sound:"H",label:"Hat 🎩"},{char:"Ii",sound:"I",label:"Ice 🧊"},{char:"Jj",sound:"J",label:"Juice 🧃"}],
+      items:[{char:"Ff",sound:"F. Fish",label:"Fish 🐟"},{char:"Gg",sound:"G. Goat",label:"Goat 🐐"},{char:"Hh",sound:"H. Hat",label:"Hat 🎩"},{char:"Ii",sound:"I. Ice",label:"Ice 🧊"},{char:"Jj",sound:"J. Juice",label:"Juice 🧃"}],
       quiz:{q:"Fish 開頭字母是？",opts:["F","G","H","J"],ans:0},
       writing:["F","G","H","I","J"]},
     life:{title:"上課好習慣", goal:"學會舉手發言、排隊、上下課規範。",
@@ -289,7 +309,7 @@ const curriculum = [
       quiz:{q:"6 + 2 - 3 = ?",opts:["4","5","6"],ans:1},
       writing:[">","<","="]},
     en:{title:"數字 1-10", goal:"認識並讀出 1-10 英文。",
-      items:[{char:"One",sound:"One",label:"1️⃣"},{char:"Two",sound:"Two",label:"2️⃣"},{char:"Three",sound:"Three",label:"3️⃣"},{char:"Four",sound:"Four",label:"4️⃣"},{char:"Five",sound:"Five",label:"5️⃣"}],
+      items:[{char:"One",sound:"One. 1",label:"1️⃣"},{char:"Two",sound:"Two. 2",label:"2️⃣"},{char:"Three",sound:"Three. 3",label:"3️⃣"},{char:"Four",sound:"Four. 4",label:"4️⃣"},{char:"Five",sound:"Five. 5",label:"5️⃣"}],
       quiz:{q:"3 的英文是？",opts:["One","Two","Three","Four"],ans:2},
       writing:["One","Two"]},
     life:{title:"認識時間", goal:"認識時鐘與作息安排。",
@@ -360,10 +380,10 @@ function renderLesson(){
     </div>`).join("");
 
   const writingHtml = lesson.writing ?
-    `<h3>✏️ 跟著寫一寫</h3>
+    `<h3>✏️ 跟著寫一寫 <button class="print-all-btn" onclick='printAll(${JSON.stringify(lesson.writing)})' >🖨️ 列印本頁全部</button></h3>
     <div class="writing-area">
-      <p style="color:#888;font-size:.9em;margin-bottom:8px">在虛線格裡描寫，或列印練習本練習：</p>
-      <div class="stroke-grid">${lesson.writing.map(c=>`<div class="stroke-cell">${c}</div>`).join("")}</div>
+      <p style="color:#888;font-size:.9em;margin-bottom:8px">在虛線格裡描寫，跟著淡色字描就會了！想印單一個字練習，按下方 🖨️ 列印。</p>
+      <div class="stroke-grid">${lesson.writing.map(c=>`<div class="stroke-item"><div class="stroke-cell">${c}</div><button class="print-char-btn" onclick="printChar('${c}')">🖨️ 列印 ${c}</button></div>`).join("")}</div>
     </div>` : "";
 
   const quizHtml = lesson.quiz ?
@@ -379,7 +399,9 @@ function renderLesson(){
 
   document.getElementById("lessonContent").innerHTML =
     `<div class="lesson">
-      <h2>第 ${week.week} 週｜${week.theme}</h2>
+      <h2>第 ${week.week} 週｜${week.theme}
+        <button class="print-week-btn" onclick="printWeekAll()">🖨️ 列印本週國英數全部寫字練習</button>
+      </h2>
       <div style="color:#888;margin-bottom:8px">${subjectMeta[currentSubject].name}・${lesson.title}</div>
       <div class="goal">🎯 學習目標：${lesson.goal}</div>
       <h3>👀 點一點，聽發音</h3>
@@ -389,14 +411,149 @@ function renderLesson(){
     </div>`;
 }
 
-function selectWeek(w){currentWeek=w;renderWeekNav();renderLesson();window.scrollTo({top:200,behavior:'smooth'})}
+function selectWeek(w){currentWeek=w;
+function printChar(c){
+  const w = window.open('','_blank','width=900,height=700');
+  if(!w){alert('請允許彈出視窗才能列印');return;}
+  const cols = 6;
+  let cells = '';
+  for(let i=0;i<cols;i++) cells += '<div class="cell tmpl">' + c + '</div>';
+  for(let r=0;r<2;r++) for(let i=0;i<cols;i++) cells += '<div class="cell light">' + c + '</div>';
+  for(let r=0;r<3;r++) for(let i=0;i<cols;i++) cells += '<div class="cell empty"></div>';
+  const html =
+    '<!DOCTYPE html><html lang="zh-TW"><head>' +
+    '<meta charset="UTF-8"><title>練習：' + c + '</title>' +
+    '<style>' +
+    '@page{size:A4;margin:15mm}' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:"Microsoft JhengHei","PingFang TC",sans-serif;padding:20px;background:#fff}' +
+    'h1{text-align:center;color:#FF8FA3;font-size:1.8em;margin-bottom:6px}' +
+    '.sub{text-align:center;color:#888;margin-bottom:14px;font-size:.95em}' +
+    '.info{display:flex;justify-content:space-between;margin:10px 0 18px;font-size:.95em;color:#666}' +
+    '.info span{border-bottom:1px solid #999;padding:2px 60px 2px 4px;min-width:180px}' +
+    '.controls{text-align:center;margin:14px 0}' +
+    '.btn{padding:10px 24px;background:#FF8FA3;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:1em;font-weight:bold;margin:0 6px;box-shadow:0 4px 12px rgba(0,0,0,.1)}' +
+    '.grid{display:grid;grid-template-columns:repeat(' + cols + ',1fr);gap:6px}' +
+    '.cell{aspect-ratio:1;border:2px solid #999;border-radius:6px;background:linear-gradient(to right,transparent 49%,#eee 49%,#eee 51%,transparent 51%),linear-gradient(to bottom,transparent 49%,#eee 49%,#eee 51%,transparent 51%);display:flex;align-items:center;justify-content:center;font-size:3.5em;line-height:1;font-weight:bold}' +
+    '.cell.tmpl{color:#FF8FA3}' +
+    '.cell.light{color:#FFC0CB}' +
+    '.cell.empty{color:transparent}' +
+    '@media print{.controls{display:none}}' +
+    '</style></head><body>' +
+    '<h1>✏️ 寫字練習：' + c + '</h1>' +
+    '<div class="sub">第 1 排照著寫｜第 2-3 排描淡色字｜第 4-6 排自己寫</div>' +
+    '<div class="info"><span>姓名：</span><span>日期：</span></div>' +
+    '<div class="controls"><button class="btn" onclick="window.print()">🖨️ 列印</button> <button class="btn" style="background:#7AC7E5" onclick="window.close()">關閉</button></div>' +
+    '<div class="grid">' + cells + '</div>' +
+    '</body></html>';
+  w.document.write(html);
+  w.document.close();
+}
+
+function printAll(chars){
+  const w = window.open('','_blank','width=900,height=700');
+  if(!w){alert('請允許彈出視窗才能列印');return;}
+  let sections = '';
+  chars.forEach(function(c){
+    let cells = '';
+    for(let i=0;i<6;i++) cells += '<div class="cell tmpl">' + c + '</div>';
+    for(let i=0;i<6;i++) cells += '<div class="cell light">' + c + '</div>';
+    for(let i=0;i<6;i++) cells += '<div class="cell empty"></div>';
+    sections += '<div class="block"><div class="char-title">' + c + '</div><div class="grid">' + cells + '</div></div>';
+  });
+  const html =
+    '<!DOCTYPE html><html lang="zh-TW"><head>' +
+    '<meta charset="UTF-8"><title>本頁寫字練習</title>' +
+    '<style>' +
+    '@page{size:A4;margin:15mm}' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:"Microsoft JhengHei","PingFang TC",sans-serif;padding:20px;background:#fff}' +
+    'h1{text-align:center;color:#FF8FA3;font-size:1.6em;margin-bottom:14px}' +
+    '.controls{text-align:center;margin:14px 0}' +
+    '.btn{padding:10px 24px;background:#FF8FA3;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:1em;font-weight:bold;margin:0 6px}' +
+    '.block{margin-bottom:20px;page-break-inside:avoid}' +
+    '.char-title{font-size:1.2em;font-weight:bold;color:#7AC7E5;margin:8px 0 4px;padding-left:8px;border-left:5px solid #7AC7E5}' +
+    '.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}' +
+    '.cell{aspect-ratio:1;border:2px solid #999;border-radius:6px;background:linear-gradient(to right,transparent 49%,#eee 49%,#eee 51%,transparent 51%),linear-gradient(to bottom,transparent 49%,#eee 49%,#eee 51%,transparent 51%);display:flex;align-items:center;justify-content:center;font-size:2.6em;line-height:1;font-weight:bold}' +
+    '.cell.tmpl{color:#FF8FA3}' +
+    '.cell.light{color:#FFC0CB}' +
+    '.cell.empty{color:transparent}' +
+    '@media print{.controls{display:none}}' +
+    '</style></head><body>' +
+    '<h1>✏️ 本頁寫字練習</h1>' +
+    '<div class="controls"><button class="btn" onclick="window.print()">🖨️ 列印</button> <button class="btn" style="background:#7AC7E5" onclick="window.close()">關閉</button></div>' +
+    sections +
+    '</body></html>';
+  w.document.write(html);
+  w.document.close();
+}
+
+function printWeekAll(){
+  const week = curriculum.find(w => w.week === currentWeek);
+  const subjects = [
+    {key:'zh', name:'📖 國語'},
+    {key:'math', name:'🔢 數學'},
+    {key:'en', name:'🔤 英語'}
+  ];
+  let bigSections = '';
+  subjects.forEach(function(sub){
+    const lesson = week[sub.key];
+    if(!lesson || !lesson.writing || lesson.writing.length === 0) return;
+    let charBlocks = '';
+    lesson.writing.forEach(function(c){
+      let cells = '';
+      for(let i=0;i<6;i++) cells += '<div class="cell tmpl">' + c + '</div>';
+      for(let i=0;i<6;i++) cells += '<div class="cell light">' + c + '</div>';
+      for(let i=0;i<6;i++) cells += '<div class="cell empty"></div>';
+      charBlocks += '<div class="block"><div class="char-title">' + c + '</div><div class="grid">' + cells + '</div></div>';
+    });
+    bigSections += '<div class="subject"><div class="subject-title">' + sub.name + '｜' + lesson.title + '</div>' + charBlocks + '</div>';
+  });
+
+  const w = window.open('','_blank','width=900,height=700');
+  if(!w){alert('請允許彈出視窗才能列印');return;}
+  const html =
+    '<!DOCTYPE html><html lang="zh-TW"><head>' +
+    '<meta charset="UTF-8"><title>第 ' + week.week + ' 週 國英數寫字練習</title>' +
+    '<style>' +
+    '@page{size:A4;margin:14mm}' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'body{font-family:"Microsoft JhengHei","PingFang TC",sans-serif;padding:20px;background:#fff}' +
+    'h1{text-align:center;color:#FF8FA3;font-size:1.6em;margin-bottom:6px}' +
+    '.sub{text-align:center;color:#888;font-size:.95em;margin-bottom:14px}' +
+    '.info{display:flex;justify-content:space-between;margin:6px 0 16px;font-size:.9em;color:#666}' +
+    '.info span{border-bottom:1px solid #999;padding:2px 60px 2px 4px;min-width:160px}' +
+    '.controls{text-align:center;margin:10px 0 20px}' +
+    '.btn{padding:10px 24px;background:#FF8FA3;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:1em;font-weight:bold;margin:0 6px}' +
+    '.subject{margin-bottom:20px;page-break-inside:avoid}' +
+    '.subject-title{font-size:1.3em;font-weight:bold;color:#fff;background:linear-gradient(135deg,#FF8FA3,#7AC7E5);padding:8px 14px;border-radius:8px;margin:14px 0 10px}' +
+    '.block{margin-bottom:14px;page-break-inside:avoid}' +
+    '.char-title{font-size:1.1em;font-weight:bold;color:#7AC7E5;margin:6px 0 4px;padding-left:8px;border-left:4px solid #7AC7E5}' +
+    '.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}' +
+    '.cell{aspect-ratio:1;border:2px solid #999;border-radius:6px;background:linear-gradient(to right,transparent 49%,#eee 49%,#eee 51%,transparent 51%),linear-gradient(to bottom,transparent 49%,#eee 49%,#eee 51%,transparent 51%);display:flex;align-items:center;justify-content:center;font-size:2.4em;line-height:1;font-weight:bold}' +
+    '.cell.tmpl{color:#FF8FA3}' +
+    '.cell.light{color:#FFC0CB}' +
+    '.cell.empty{color:transparent}' +
+    '@media print{.controls{display:none}}' +
+    '</style></head><body>' +
+    '<h1>✏️ 第 ' + week.week + ' 週 寫字練習</h1>' +
+    '<div class="sub">' + week.theme + '｜國語 + 英語 + 數學</div>' +
+    '<div class="info"><span>姓名：</span><span>日期：</span></div>' +
+    '<div class="controls"><button class="btn" onclick="window.print()">🖨️ 列印</button> <button class="btn" style="background:#7AC7E5" onclick="window.close()">關閉</button></div>' +
+    bigSections +
+    '</body></html>';
+  w.document.write(html);
+  w.document.close();
+}
+
+renderWeekNav();renderLesson();window.scrollTo({top:200,behavior:'smooth'})}
 function selectSubject(s){currentSubject=s;renderSubjectTabs();renderLesson()}
 
 function speak(text){
   if(!('speechSynthesis' in window))return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  const isEn = /^[A-Za-z\s]+$/.test(text);
+  const isEn = /^[A-Za-z\s,.!?'"-]+$/.test(text);
   u.lang = isEn ? "en-US" : "zh-TW";
   u.rate = 0.8;
   speechSynthesis.speak(u);
