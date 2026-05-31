@@ -461,16 +461,18 @@ function renderLesson(){
       <div class="stroke-grid">${lesson.writing.map(c=>`<div class="stroke-item"><div class="stroke-cell">${c}</div></div>`).join("")}</div>
     </div>` : "";
 
-  const quizHtml = lesson.quiz ?
-    `<h3>🎯 小試身手</h3>
+  const quizList = genQuizzes(week, currentSubject, lesson);
+  const quizHtml = quizList.length ?
+    `<h3>🎯 小試身手（共 ${quizList.length} 題）</h3>` +
+    quizList.map((q, qi) => `
     <div class="quiz">
-      <div class="q">${lesson.quiz.q}</div>
+      <div class="q">${qi+1}. ${q.q}</div>
       <div class="options">
-        ${lesson.quiz.opts.map((o,i)=>
-          `<button class="opt" onclick="checkAns(this,${i},${lesson.quiz.ans})">${o}</button>`).join("")}
+        ${q.opts.map((o,i)=>
+          `<button class="opt" onclick="checkAns(this,${i},${q.ans})">${o}</button>`).join("")}
       </div>
       <div class="feedback"></div>
-    </div>` : "";
+    </div>`).join("") : "";
 
   document.getElementById("lessonContent").innerHTML =
     `<div class="lesson">
@@ -500,6 +502,8 @@ function speak(text){
   speechSynthesis.speak(u);
 }
 
+const _praises = ['答對了，好棒！','你好厲害！','太棒了！','答對囉！','真聰明！'];
+const _encourage = ['沒關係，再想想看','再試一次','沒關係，下次會更好','加油'];
 function checkAns(btn, idx, ans){
   const parent = btn.parentElement;
   const feedback = parent.parentElement.querySelector(".feedback");
@@ -507,23 +511,314 @@ function checkAns(btn, idx, ans){
   if(idx===ans){
     btn.classList.add("correct");
     feedback.style.color = "#6BCB77";
-    feedback.textContent = "✅ 答對了！太棒了！";
-    setTimeout(()=>showReward(),800);
+    const praise = _praises[Math.floor(Math.random()*_praises.length)];
+    feedback.textContent = "✅ " + praise;
+    speak(praise);
   }else{
     btn.classList.add("wrong");
     parent.querySelectorAll(".opt")[ans].classList.add("correct");
     feedback.style.color = "#FF8FA3";
-    feedback.textContent = "💪 沒關係，正確答案幫你標出來囉～";
+    const enc = _encourage[Math.floor(Math.random()*_encourage.length)];
+    feedback.textContent = "💪 " + enc + "，正確答案幫你標出來囉";
+    speak(enc);
     setTimeout(()=>{
       parent.querySelectorAll(".opt").forEach(b=>{b.style.pointerEvents='auto';b.classList.remove('correct','wrong')});
       feedback.textContent="";
-    },2500);
+    },3500);
   }
 }
 function showReward(){document.getElementById("reward").classList.add("show")}
 function closeReward(){document.getElementById("reward").classList.remove("show")}
 
 // ===== 列印系統（用頁面內覆蓋層，避開 popup blocker） =====
+
+// ===== 小試身手 產生器（每課 10 題） =====
+function _shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function _makeOpts(correct, wrongPool, n){
+  const wrongs = wrongPool.filter(x => x !== correct);
+  const uniq = [];
+  wrongs.forEach(w => { if(!uniq.includes(w) && uniq.length < n-1) uniq.push(w); });
+  while(uniq.length < n-1) uniq.push('?'); // fallback
+  const opts = _shuffle([correct, ...uniq]);
+  return { opts, ans: opts.indexOf(correct) };
+}
+function _enWordOf(it){
+  const m = (it.label || '').replace(/[^A-Za-z]/g,' ').trim().split(/\s+/);
+  return m[0] || it.char;
+}
+function _firstLetter(it){
+  return ((it.char || '') + '')[0] || '?';
+}
+
+const lifeQuizPools = {
+  1: [
+    {q:"上學前要先檢查什麼？", opts:["玩具","書包","遙控器","糖果"], ans:1},
+    {q:"鉛筆斷了應該？", opts:["丟掉","削鉛筆","哭","跟同學搶"], ans:1},
+    {q:"哪個應該放在書包？", opts:["寵物","課本","糖果","遊戲機"], ans:1},
+    {q:"鉛筆盒裡應該有？", opts:["鉛筆和橡皮擦","果汁","玩偶","電池"], ans:0},
+    {q:"上學要帶？", opts:["手機","水壺","枕頭","遙控器"], ans:1},
+    {q:"擦字時用？", opts:["手","橡皮擦","水","面紙"], ans:1},
+    {q:"書本掉地上要？", opts:["不管","撿起來","跑開","笑"], ans:1},
+    {q:"姿勢正確是？", opts:["趴著","坐挺","躺著","蹲著"], ans:1},
+    {q:"鉛筆要怎麼拿？", opts:["三指握筆","用拳頭","兩根手指","用嘴巴"], ans:0},
+    {q:"功課做完要？", opts:["亂丟","收進書包","撕掉","給狗狗"], ans:1},
+  ],
+  2: [
+    {q:"想問問題應該？", opts:["大聲說","舉手","站起來","跑去找老師"], ans:1},
+    {q:"上廁所要？", opts:["跑出去","舉手告訴老師","憋著","哭"], ans:1},
+    {q:"走廊應該？", opts:["奔跑","慢慢走","跳","滑行"], ans:1},
+    {q:"老師講話時？", opts:["講話","安靜聽","睡覺","玩"], ans:1},
+    {q:"同學跌倒了應該？", opts:["笑他","扶他起來","跑掉","告狀"], ans:1},
+    {q:"早上見到老師說？", opts:["再見","早安","謝謝","沒事"], ans:1},
+    {q:"借東西應該？", opts:["直接拿","先說『借我』","不還","偷拿"], ans:1},
+    {q:"上課要？", opts:["看手機","專心聽","聊天","睡覺"], ans:1},
+    {q:"打掃時間？", opts:["逃跑","認真做","裝病","玩"], ans:1},
+    {q:"下課鐘響？", opts:["馬上跑出去","收好東西再下課","推同學","大叫"], ans:1},
+  ],
+  3: [
+    {q:"吃飯前要先？", opts:["看電視","洗手","玩手機","睡覺"], ans:1},
+    {q:"早晚要做什麼？", opts:["看電視","刷牙","跑步","發呆"], ans:1},
+    {q:"自己穿衣是？", opts:["長大的表現","壞事","可以不做","媽媽的事"], ans:0},
+    {q:"睡覺前要？", opts:["吃糖","刷牙","看手機","打電動"], ans:1},
+    {q:"起床要？", opts:["賴床","摺被","哭","發呆"], ans:1},
+    {q:"打噴嚏要？", opts:["噴到別人","掩住口鼻","哈哈大笑","裝沒事"], ans:1},
+    {q:"看完書要？", opts:["亂丟","放回原處","撕掉","送人"], ans:1},
+    {q:"想要某樣東西？", opts:["大哭","好好說","搶","生氣"], ans:1},
+    {q:"洗手要用？", opts:["只用水","肥皂和水","可樂","果汁"], ans:1},
+    {q:"指甲長了要？", opts:["不管","剪指甲","咬","拔掉"], ans:1},
+  ],
+  4: [
+    {q:"紙類丟哪個桶？", opts:["一般垃圾","回收","廚餘","廁所"], ans:1},
+    {q:"果皮要丟？", opts:["回收","廚餘","一般垃圾","隨便"], ans:1},
+    {q:"電池要丟？", opts:["一般垃圾","回收特殊區","水裡","土裡"], ans:1},
+    {q:"看到垃圾在地上？", opts:["不管","撿起來丟","踢開","笑"], ans:1},
+    {q:"塑膠瓶要？", opts:["回收","廚餘","隨便","埋掉"], ans:0},
+    {q:"寶特瓶要做什麼？", opts:["丟回收","壓扁","裝水","當玩具"], ans:0},
+    {q:"觀察樹葉用什麼？", opts:["眼睛和心","電視","遊戲機","耳機"], ans:0},
+    {q:"下雨天要帶？", opts:["雨傘","太陽眼鏡","泳衣","空手"], ans:0},
+    {q:"打雷下雨要？", opts:["躲在大樹下","進室內","跑跳","玩水"], ans:1},
+    {q:"看到小動物應該？", opts:["丟石頭","靜靜觀察","抓走","嚇牠"], ans:1},
+  ],
+  5: [
+    {q:"每天最重要的飲料？", opts:["果汁","牛奶","汽水","水"], ans:3},
+    {q:"要多吃什麼？", opts:["糖果","蔬菜水果","炸物","泡麵"], ans:1},
+    {q:"細嚼慢嚥是？", opts:["好習慣","壞習慣","沒差","不對"], ans:0},
+    {q:"吃飯時應該？", opts:["看電視","專心吃","跑來跑去","玩手機"], ans:1},
+    {q:"零食可以？", opts:["天天吃","適量","當正餐","不限制"], ans:1},
+    {q:"早餐重要嗎？", opts:["重要","不重要","隨便","可以不吃"], ans:0},
+    {q:"飯後要？", opts:["馬上躺","休息一下","跑步","睡覺"], ans:1},
+    {q:"吃飯要怎樣？", opts:["狼吞虎嚥","細嚼慢嚥","邊跑邊吃","不嚼"], ans:1},
+    {q:"什麼是垃圾食物？", opts:["蘋果","炸雞","青菜","白飯"], ans:1},
+    {q:"挑食好嗎？", opts:["很好","不好","沒差","應該"], ans:1},
+  ],
+  6: [
+    {q:"幾點該起床上學？", opts:["凌晨3點","早上7點","晚上9點","中午"], ans:1},
+    {q:"晚上幾點該睡覺？", opts:["凌晨2點","晚上9點","早上6點","下午3點"], ans:1},
+    {q:"中午要做什麼？", opts:["睡午覺","熬夜","看電視","跑步"], ans:0},
+    {q:"上課時間多久？", opts:["40分鐘","8小時","5分鐘","整天"], ans:0},
+    {q:"下課可以？", opts:["睡覺","休息玩","上課","回家"], ans:1},
+    {q:"鐘響表示？", opts:["放假","上下課時間","吃飯","睡覺"], ans:1},
+    {q:"一週上學幾天？", opts:["7天","5天","3天","0天"], ans:1},
+    {q:"一天有幾小時？", opts:["12","24","48","6"], ans:1},
+    {q:"放學後要？", opts:["熬夜玩","回家寫功課","逛街","打架"], ans:1},
+    {q:"早上太陽？", opts:["從東邊出來","西邊出來","北邊","不出來"], ans:0},
+  ],
+  7: [
+    {q:"遇到不會的事情？", opts:["放棄","哭鬧","想辦法或問人","發脾氣"], ans:2},
+    {q:"想學新東西要？", opts:["立刻會","練習","等別人教","放棄"], ans:1},
+    {q:"失敗了應該？", opts:["放棄","再試","哭","怪別人"], ans:1},
+    {q:"訂目標要？", opts:["不切實際","小步前進","太簡單","別人幫訂"], ans:1},
+    {q:"被誤會了要？", opts:["大哭","冷靜說明","打人","沉默"], ans:1},
+    {q:"想跟同學玩可以說？", opts:["不理人","『可以跟你玩嗎？』","用搶的","跑走"], ans:1},
+    {q:"做不到時可以？", opts:["放棄","求助","哭鬧","破壞"], ans:1},
+    {q:"被讚美要？", opts:["驕傲","謝謝","沒反應","否認"], ans:1},
+    {q:"練習要怎麼樣？", opts:["一次就好","每天一點","等心情","別練"], ans:1},
+    {q:"心情不好可以？", opts:["打人","深呼吸跟大人說","摔東西","關起來"], ans:1},
+  ],
+  8: [
+    {q:"上小學最重要的是？", opts:["考第一名","快樂學習","帶玩具","裝大人"], ans:1},
+    {q:"見到新同學說？", opts:["不理他","你好","討厭","走開"], ans:1},
+    {q:"老師問問題要？", opts:["低頭","勇敢舉手","裝睡","逃跑"], ans:1},
+    {q:"開學前要？", opts:["熬夜玩","調作息","不準備","害怕"], ans:1},
+    {q:"書包要怎樣？", opts:["亂塞","整齊","丟掉","隨便"], ans:1},
+    {q:"自己能做的事？", opts:["叫媽媽","自己做","不做","哭"], ans:1},
+    {q:"上小學會更？", opts:["可怕","快樂能學新東西","無聊","累"], ans:1},
+    {q:"跟同學吵架要？", opts:["打人","和好","跑掉","告狀"], ans:1},
+    {q:"不會的可以？", opts:["跳過放棄","問老師同學","哭","抄別人"], ans:1},
+    {q:"成為小學生很？", opts:["可怕","值得開心","討厭","無聊"], ans:1},
+  ],
+};
+
+const mathGen = {
+  1: () => { // 數 1-10
+    const qs = [];
+    const used = new Set();
+    while(qs.length < 10){
+      const n = 1 + Math.floor(Math.random()*10);
+      if(used.has(n)) continue;
+      used.add(n);
+      const wrongs = [n-1, n+1, n+2, n-2].filter(x => x>=1 && x<=10 && x!==n);
+      const {opts, ans} = _makeOpts(String(n), wrongs.map(String), 4);
+      qs.push({q:'🌟'.repeat(n) + ' 有幾顆星？', opts, ans});
+    }
+    return qs;
+  },
+  2: () => { // 11-20 比較
+    const qs = [];
+    while(qs.length < 10){
+      const a = 11 + Math.floor(Math.random()*10);
+      const b = 11 + Math.floor(Math.random()*10);
+      if(a === b) continue;
+      const correct = a > b ? '大' : '小';
+      qs.push({q: a + ' 比 ' + b + ' ？', opts:['大','小','一樣'], ans: correct === '大' ? 0 : 1});
+    }
+    return qs;
+  },
+  3: () => { // 10 內加法
+    const qs = [];
+    while(qs.length < 10){
+      const a = 1 + Math.floor(Math.random()*8);
+      const b = 1 + Math.floor(Math.random()*(10-a));
+      const sum = a + b;
+      const wrongs = [sum-1, sum+1, sum-2].filter(x => x>=0 && x<=15 && x!==sum);
+      const {opts, ans} = _makeOpts(String(sum), wrongs.map(String), 4);
+      qs.push({q: a + ' + ' + b + ' = ?', opts, ans});
+    }
+    return qs;
+  },
+  4: () => { // 10 內減法
+    const qs = [];
+    while(qs.length < 10){
+      const a = 3 + Math.floor(Math.random()*8);
+      const b = Math.floor(Math.random()*a);
+      const diff = a - b;
+      const wrongs = [diff-1, diff+1, diff+2].filter(x => x>=0 && x<=15 && x!==diff);
+      const {opts, ans} = _makeOpts(String(diff), wrongs.map(String), 4);
+      qs.push({q: a + ' - ' + b + ' = ?', opts, ans});
+    }
+    return qs;
+  },
+  5: () => [ // 形狀
+    {q:'⚽ 皮球是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:0},
+    {q:'🎁 禮物盒是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:2},
+    {q:'🍕 披薩切片是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:1},
+    {q:'📱 手機是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:3},
+    {q:'🍩 甜甜圈是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:0},
+    {q:'🚩 旗子是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:1},
+    {q:'🪟 窗戶大多是？', opts:['圓形','三角形','正方形','長方形'], ans:2},
+    {q:'🧇 鬆餅是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:2},
+    {q:'🚪 門是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:3},
+    {q:'🌕 月亮是什麼形狀？', opts:['圓形','三角形','正方形','長方形'], ans:0},
+  ],
+  6: () => { // 比大小 + 加減混合
+    const qs = [];
+    for(let i=0; i<5; i++){
+      let a, b;
+      do { a = 1+Math.floor(Math.random()*15); b = 1+Math.floor(Math.random()*15); } while(a === b);
+      const correct = a > b ? '>' : '<';
+      qs.push({q: a + ' ___ ' + b, opts: _shuffle(['>','<','=']), ans: -1});
+      // fix ans
+      const last = qs[qs.length-1];
+      last.ans = last.opts.indexOf(correct);
+    }
+    while(qs.length < 10){
+      const a = 1 + Math.floor(Math.random()*8);
+      const b = 1 + Math.floor(Math.random()*8);
+      const c = 1 + Math.floor(Math.random()*Math.min(a+b, 9));
+      const result = a + b - c;
+      if(result < 0) continue;
+      const wrongs = [result-1, result+1, result+2].filter(x => x>=0 && x<=20 && x!==result);
+      const {opts, ans} = _makeOpts(String(result), wrongs.map(String), 4);
+      qs.push({q: a + ' + ' + b + ' - ' + c + ' = ?', opts, ans});
+    }
+    return qs;
+  },
+  7: () => { // 20 內 +/-
+    const qs = [];
+    for(let i=0; i<5; i++){
+      const a = 10 + Math.floor(Math.random()*8);
+      const b = 1 + Math.floor(Math.random()*(20-a));
+      const sum = a + b;
+      const wrongs = [sum-1, sum+1, sum+2].filter(x => x>=0 && x<=25 && x!==sum);
+      const {opts, ans} = _makeOpts(String(sum), wrongs.map(String), 4);
+      qs.push({q: a + ' + ' + b + ' = ?', opts, ans});
+    }
+    while(qs.length < 10){
+      const a = 11 + Math.floor(Math.random()*9);
+      const b = 1 + Math.floor(Math.random()*9);
+      const diff = a - b;
+      if(diff < 0) continue;
+      const wrongs = [diff-1, diff+1, diff+2].filter(x => x>=0 && x<=25 && x!==diff);
+      const {opts, ans} = _makeOpts(String(diff), wrongs.map(String), 4);
+      qs.push({q: a + ' - ' + b + ' = ?', opts, ans});
+    }
+    return qs;
+  },
+  8: () => [ // 應用題
+    {q:'小明有 5 顆糖,弟弟有 3 顆,共幾顆?', opts:['7','8','9','10'], ans:1},
+    {q:'媽媽買 10 個蘋果,吃掉 4 個,剩幾個?', opts:['5','6','7','8'], ans:1},
+    {q:'班上有 8 男 7 女,共幾人?', opts:['14','15','16','17'], ans:1},
+    {q:'我有 12 元,買糖花 5 元,剩幾元?', opts:['5','6','7','8'], ans:2},
+    {q:'籃子有 6 顆橘子,放進去 4 顆,共幾顆?', opts:['8','9','10','11'], ans:2},
+    {q:'路上看到 3 輛車,又來 5 輛,共幾輛?', opts:['6','7','8','9'], ans:2},
+    {q:'15 顆糖果,吃了 7 顆,剩幾顆?', opts:['6','7','8','9'], ans:1},
+    {q:'2 + 3 + 4 = ?', opts:['7','8','9','10'], ans:2},
+    {q:'10 - 3 - 2 = ?', opts:['4','5','6','7'], ans:1},
+    {q:'排隊我前 5 人,後 3 人,共幾人?', opts:['7','8','9','10'], ans:2},
+  ],
+};
+
+function genQuizzes(weekObj, subject, lesson){
+  const quizzes = [];
+  const items = lesson.items || [];
+
+  if(subject === 'zh'){
+    if(lesson.quiz) quizzes.push(lesson.quiz);
+    items.forEach(it => {
+      const wrongPool = items.map(i => i.char);
+      const {opts, ans} = _makeOpts(it.char, wrongPool, 4);
+      quizzes.push({ q: '「' + it.sound + '」開頭的注音是？', opts, ans });
+    });
+    items.forEach(it => {
+      const wrongPool = items.map(i => i.sound);
+      const {opts, ans} = _makeOpts(it.sound, wrongPool, 4);
+      quizzes.push({ q: '注音「' + it.char + '」對應的詞是？', opts, ans });
+    });
+  } else if(subject === 'en'){
+    if(lesson.quiz) quizzes.push(lesson.quiz);
+    items.forEach(it => {
+      const word = _enWordOf(it);
+      const letter = _firstLetter(it);
+      const wrongPool = items.map(i => _firstLetter(i));
+      const {opts, ans} = _makeOpts(letter, wrongPool, 4);
+      quizzes.push({ q: word + ' 開頭的字母是？', opts, ans });
+    });
+    items.forEach(it => {
+      const word = _enWordOf(it);
+      const wrongPool = items.map(i => _enWordOf(i));
+      const {opts, ans} = _makeOpts(word, wrongPool, 4);
+      quizzes.push({ q: '字母 ' + it.char + ' 對應的單字是？', opts, ans });
+    });
+  } else if(subject === 'math'){
+    const gen = mathGen[weekObj.week];
+    if(gen) quizzes.push(...gen());
+    else if(lesson.quiz) quizzes.push(lesson.quiz);
+  } else if(subject === 'life'){
+    const pool = lifeQuizPools[weekObj.week] || [];
+    quizzes.push(...pool);
+    if(quizzes.length < 10 && lesson.quiz) quizzes.push(lesson.quiz);
+  }
+
+  return _shuffle(quizzes).slice(0, 10);
+}
+
 function buildCells(c){
   // 每個字 6 格：2 淡色描寫 + 4 空格自己寫 = 練習 6 次
   let cells = '';
