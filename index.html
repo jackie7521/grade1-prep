@@ -231,6 +231,8 @@
     background:linear-gradient(135deg,#FF8FA3,#7AC7E5);
     padding:10px 16px;border-radius:10px;margin:24px 0 12px;
   }
+  .po-page{margin-bottom:20px}
+  .po-block{margin-bottom:6px}
   @media print{
     body.po-open > *:not(#print-overlay){display:none !important}
     .po-toolbar{display:none !important}
@@ -239,10 +241,17 @@
     .po-grid{margin-bottom:8px}
     .po-cell{font-size:42px}
     .po-big{font-size:60px}
-    .po-char-title{margin:8px 0 4px;font-size:1em}
-    .po-subject-title{margin:10px 0 6px;font-size:1.1em;padding:6px 12px}
+    .po-char-title{margin:6px 0 3px;font-size:1em}
+    .po-subject-title{margin:6px 0 6px;font-size:1.1em;padding:6px 12px}
     .po-info{margin-bottom:6px}
     .po-sub{margin-bottom:6px}
+    /* 每科目強制換頁 */
+    .po-page{page-break-after:always;break-after:page;margin-bottom:0}
+    .po-page:last-of-type{page-break-after:auto;break-after:auto}
+    /* 每個字（title+grid）不切斷 */
+    .po-block{page-break-inside:avoid;break-inside:avoid}
+    .po-char-title{page-break-after:avoid;break-after:avoid}
+    .po-subject-title{page-break-after:avoid;break-after:avoid}
   }
 </style>
 </head>
@@ -556,24 +565,24 @@ function printChar(c){
 function printAll(chars){
   let content = '<div class="po-info"><span>姓名：</span><span>日期：</span></div>';
   chars.forEach(function(c){
-    content += '<div class="po-char-title">' + c + '</div>';
-    content += '<div class="po-grid">' + buildCells(c) + '</div>';
+    content += '<div class="po-block"><div class="po-char-title">' + c + '</div><div class="po-grid">' + buildCells(c) + '</div></div>';
   });
   openPrintView('✏️ 本頁寫字練習', content);
 }
 function printWeekAll(){
   const week = curriculum.find(w => w.week === currentWeek);
-  let content = '<div class="po-info"><span>姓名：</span><span>日期：</span></div>';
+  let pages = '';
   ['zh','math','en'].forEach(function(sk){
     const lesson = week[sk];
     if(!lesson || !lesson.writing || lesson.writing.length===0) return;
-    content += '<div class="po-subject-title">' + subjectMeta[sk].name + '｜' + lesson.title + '</div>';
+    let pageBody = '<div class="po-info"><span>姓名：</span><span>日期：</span></div>';
+    pageBody += '<div class="po-subject-title">' + subjectMeta[sk].name + '｜' + lesson.title + '</div>';
     lesson.writing.forEach(function(c){
-      content += '<div class="po-char-title">' + c + '</div>';
-      content += '<div class="po-grid">' + buildCells(c) + '</div>';
+      pageBody += '<div class="po-block"><div class="po-char-title">' + c + '</div><div class="po-grid">' + buildCells(c) + '</div></div>';
     });
+    pages += '<section class="po-page">' + pageBody + '</section>';
   });
-  openPrintView('✏️ 第 ' + week.week + ' 週 國英數寫字練習', content);
+  openPrintView('✏️ 第 ' + week.week + ' 週 國英數寫字練習', pages);
 }
 
 
