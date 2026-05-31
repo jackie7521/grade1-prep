@@ -117,15 +117,13 @@
       linear-gradient(to right,transparent 49%,#ffd 49%,#ffd 51%,transparent 51%),
       linear-gradient(to bottom,transparent 49%,#ffd 49%,#ffd 51%,transparent 51%);
     display:flex;align-items:center;justify-content:center;
-    font-size:75cqi;line-height:0.95;color:#F8BBC4;font-weight:bold;border-radius:8px;
-    container-type:inline-size;
+    font-size:5em;line-height:0.95;color:#F8BBC4;font-weight:bold;border-radius:8px;
   }
   .stroke-item{
     display:flex;flex-direction:column;align-items:stretch;gap:6px;
-    container-type:inline-size;
   }
   .stroke-grid{
-    display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
     gap:8px;margin:10px 0;
   }
   .print-char-btn{
@@ -204,15 +202,22 @@
   .po-info span{border-bottom:1px solid #999;padding:4px 50px 4px 4px;min-width:200px}
   .po-sub{color:#888;margin-bottom:14px;text-align:center;font-size:.9em}
   .po-grid{
-    display:grid;grid-template-columns:repeat(6,1fr);gap:6px;
-    margin-bottom:18px;
+    display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;
+    margin-bottom:10px;max-width:680px;
   }
   .po-cell{
     aspect-ratio:1;border:2px solid #999;border-radius:6px;
     background:linear-gradient(to right,transparent 49%,#eee 49%,#eee 51%,transparent 51%),linear-gradient(to bottom,transparent 49%,#eee 49%,#eee 51%,transparent 51%);
     display:flex;align-items:center;justify-content:center;
-    font-size:75cqi;line-height:0.95;font-weight:bold;
-    container-type:inline-size;
+    font-size:50px;line-height:0.95;font-weight:bold;min-width:0;
+  }
+  .po-sample{
+    display:flex;align-items:center;gap:14px;background:#FFF4D6;
+    border-left:5px solid #FFD93D;padding:10px 14px;border-radius:8px;
+    margin-bottom:10px;font-size:1em;color:#666;
+  }
+  .po-big{
+    font-size:80px;line-height:1;color:#FF8FA3;font-weight:bold;
   }
   .po-cell.po-tmpl{color:#FF8FA3}
   .po-cell.po-light{color:#FFC0CB}
@@ -230,6 +235,14 @@
     body.po-open > *:not(#print-overlay){display:none !important}
     .po-toolbar{display:none !important}
     #print-overlay{position:static;background:#fff}
+    .po-content{padding:10px;max-width:none}
+    .po-grid{margin-bottom:8px}
+    .po-cell{font-size:42px}
+    .po-big{font-size:60px}
+    .po-char-title{margin:8px 0 4px;font-size:1em}
+    .po-subject-title{margin:10px 0 6px;font-size:1.1em;padding:6px 12px}
+    .po-info{margin-bottom:6px}
+    .po-sub{margin-bottom:6px}
   }
 </style>
 </head>
@@ -503,10 +516,10 @@ function closeReward(){document.getElementById("reward").classList.remove("show"
 
 // ===== 列印系統（用頁面內覆蓋層，避開 popup blocker） =====
 function buildCells(c){
+  // 每個字 6 格：2 淡色描寫 + 4 空格自己寫 = 練習 6 次
   let cells = '';
-  for(let i=0;i<6;i++) cells += '<div class="po-cell po-tmpl">' + c + '</div>';
-  for(let i=0;i<6;i++) cells += '<div class="po-cell po-light">' + c + '</div>';
-  for(let i=0;i<6;i++) cells += '<div class="po-cell po-empty"></div>';
+  for(let i=0;i<2;i++) cells += '<div class="po-cell po-light">' + c + '</div>';
+  for(let i=0;i<4;i++) cells += '<div class="po-cell po-empty"></div>';
   return cells;
 }
 function openPrintView(title, contentHtml){
@@ -530,10 +543,14 @@ function closePrintView(){
   document.body.classList.remove('po-open');
 }
 function printChar(c){
+  // 單字練習頁：給 5 組 6 格，可以寫很多次
+  let allRows = '';
+  for(let r=0;r<5;r++) allRows += '<div class="po-grid">' + buildCells(c) + '</div>';
   const content =
     '<div class="po-info"><span>姓名：</span><span>日期：</span></div>' +
-    '<div class="po-sub">第 1 排照著寫｜第 2-3 排描淡色字｜第 4-6 排自己寫</div>' +
-    '<div class="po-grid">' + buildCells(c) + '</div>';
+    '<div class="po-sample">範本字：<span class="po-big">' + c + '</span></div>' +
+    '<div class="po-sub">前 2 格描淡色字｜後 4 格自己寫｜共 5 排可練習</div>' +
+    allRows;
   openPrintView('✏️ 寫字練習：' + c, content);
 }
 function printAll(chars){
