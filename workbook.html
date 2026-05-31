@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>小一銜接 暑假練習本</title>
+<style>
+  @page{size:A4;margin:14mm 14mm}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;
+    color:#333;background:#fff;padding:20px;
+  }
+  .print-btn{
+    position:fixed;top:20px;right:20px;background:#FF8FA3;color:#fff;
+    border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:bold;
+    box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:99;
+  }
+  @media print{
+    .print-btn{display:none}
+    .page{page-break-after:always}
+    .page:last-child{page-break-after:auto}
+  }
+
+  .page{
+    max-width:900px;margin:0 auto 30px;padding:24px;
+    background:#fff;border:1px solid #eee;border-radius:12px;
+  }
+  .page-header{
+    display:flex;justify-content:space-between;align-items:center;
+    border-bottom:3px solid #FF8FA3;padding-bottom:10px;margin-bottom:16px;
+  }
+  .page-header h1{color:#FF8FA3;font-size:20pt}
+  .page-header .week{
+    background:#FFD93D;padding:4px 12px;border-radius:20px;font-weight:bold;font-size:11pt;
+  }
+  h2{color:#7AC7E5;font-size:14pt;margin:14px 0 8px;padding-left:8px;border-left:5px solid #7AC7E5}
+  h3{color:#D14D72;font-size:12pt;margin:10px 0 6px}
+  p{font-size:11pt;line-height:1.6;margin-bottom:6px}
+
+  .name-box{
+    display:flex;gap:14px;justify-content:flex-end;
+    font-size:10pt;color:#666;margin-bottom:10px;
+  }
+  .name-box span{border-bottom:1px solid #999;padding:0 30px 2px;min-width:120px}
+
+  /* 寫字格（米字格） */
+  .write-row{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin:8px 0}
+  .write-cell{
+    aspect-ratio:1;border:1.5px solid #999;border-radius:4px;
+    background:
+      linear-gradient(45deg,transparent 48%,#eee 48%,#eee 52%,transparent 52%),
+      linear-gradient(-45deg,transparent 48%,#eee 48%,#eee 52%,transparent 52%),
+      linear-gradient(to right,transparent 49%,#eee 49%,#eee 51%,transparent 51%),
+      linear-gradient(to bottom,transparent 49%,#eee 49%,#eee 51%,transparent 51%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.8em;color:#FFB5C5;font-weight:bold;
+  }
+  .write-cell.empty{color:transparent}
+
+  /* 注音四格 */
+  .zh-row{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:8px 0}
+  .zh-cell{
+    aspect-ratio:1;border:1.5px solid #999;border-radius:4px;
+    background:
+      linear-gradient(to right,transparent 49%,#eee 49%,#eee 51%,transparent 51%),
+      linear-gradient(to bottom,transparent 49%,#eee 49%,#eee 51%,transparent 51%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2em;color:#FFB5C5;font-weight:bold;
+  }
+
+  /* 數學題目 */
+  .math-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:8px 0}
+  .math-q{
+    border:1.5px solid #ddd;border-radius:8px;padding:10px;text-align:center;
+    font-size:1.2em;font-weight:bold;background:#F0F8FF;
+  }
+  .blank{display:inline-block;border-bottom:2px solid #333;min-width:30px;text-align:center}
+
+  /* 英文寫字線（4 線格） */
+  .en-row{margin:10px 0}
+  .en-line{
+    height:50px;border-top:1.5px solid #ccc;border-bottom:2px solid #333;
+    position:relative;background:
+      linear-gradient(to bottom,transparent 33%,#ddd 33%,#ddd 34%,transparent 34%,transparent 66%,#999 66%,#999 67%,transparent 67%);
+    margin-bottom:8px;display:flex;align-items:center;padding:0 14px;
+  }
+  .en-trace{font-size:1.6em;color:#FFB5C5;letter-spacing:0.5em;font-family:Arial,sans-serif}
+
+  /* 連連看 */
+  .match-table{width:100%;margin:8px 0;font-size:1.1em}
+  .match-table td{padding:10px 14px;border:1px dashed #ccc;width:50%;text-align:center}
+
+  /* 塗色 */
+  .color-box{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:8px 0}
+  .color-cell{
+    border:2px solid #333;border-radius:8px;padding:14px;text-align:center;
+    font-size:1.1em;font-weight:bold;min-height:80px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .color-cell .ico{font-size:2em}
+
+  /* 提示 */
+  .note{
+    background:#FFF4D6;border-left:4px solid #FFD93D;
+    padding:8px 12px;border-radius:6px;font-size:10pt;margin:8px 0;
+  }
+  .check-item{margin:4px 0;font-size:11pt}
+
+  /* TOC */
+  .toc{padding:20px}
+  .toc h1{text-align:center;color:#FF8FA3;font-size:24pt;margin-bottom:16px}
+  .toc table{width:100%;border-collapse:collapse}
+  .toc td{padding:10px;border-bottom:1px dashed #ccc;font-size:11pt}
+  .toc td:first-child{font-weight:bold;color:#7AC7E5;width:18%}
+
+  .cover{
+    text-align:center;padding:60px 30px;
+    background:linear-gradient(135deg,#FFB5C5,#7AC7E5);color:#fff;border-radius:20px;
+  }
+  .cover h1{font-size:36pt;margin-bottom:10px;text-shadow:3px 3px 0 rgba(0,0,0,.1)}
+  .cover .subtitle{font-size:14pt;opacity:.95;margin-bottom:30px}
+  .cover .info{
+    background:rgba(255,255,255,.9);color:#333;padding:20px;border-radius:12px;
+    display:inline-block;text-align:left;
+  }
+  .cover .info p{font-size:11pt;margin:6px 0}
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨️ 列印 / 存為 PDF</button>
+
+<!-- 封面 -->
+<div class="page">
+  <div class="cover">
+    <h1>🎒 小一銜接練習本</h1>
+    <div class="subtitle">暑假 8 週快樂學習</div>
+    <div class="info">
+      <p><strong>小朋友的名字：</strong>______________________</p>
+      <p><strong>開始日期：</strong>______________________</p>
+      <p><strong>完成日期：</strong>______________________</p>
+      <p style="margin-top:14px;color:#888">📖 國語　🔢 數學　🔤 英語　🌟 生活</p>
+    </div>
+  </div>
+</div>
+
+<!-- 目錄 -->
+<div class="page toc">
+  <h1>📑 目錄</h1>
+  <table>
+    <tr><td>第 1 週</td><td>我是小學生了！｜ㄅㄆㄇㄈ、1-10、ABCDE、整理書包</td></tr>
+    <tr><td>第 2 週</td><td>快樂校園生活｜ㄉㄊㄋㄌ、11-20、FGHIJ、上課規範</td></tr>
+    <tr><td>第 3 週</td><td>我愛我的家人｜ㄍㄎㄏ、10 內加法、家人、照顧自己</td></tr>
+    <tr><td>第 4 週</td><td>大自然的朋友｜介音、10 內減法、動物、觀察自然</td></tr>
+    <tr><td>第 5 週</td><td>美味的食物｜ㄚㄛㄜㄝ、形狀、食物、健康飲食</td></tr>
+    <tr><td>第 6 週</td><td>快樂的時光｜ㄞㄟㄠㄡ、比大小、數字、時間</td></tr>
+    <tr><td>第 7 週</td><td>我的小夢想｜ㄢㄣㄤㄥ、20 內加減、顏色、目標</td></tr>
+    <tr><td>第 8 週</td><td>準備上小一！｜認讀國字、應用題、問候、開學準備</td></tr>
+  </table>
+  <div class="note" style="margin-top:20px">
+    <strong>📌 使用說明：</strong>每天完成一頁練習，由家長陪同。
+    每頁右上角有姓名與日期欄，方便記錄孩子的學習軌跡。
+    完成一頁可以蓋一個「我好棒」印章或貼貼紙喔！
+  </div>
+</div>
+
+<!-- 第 1 週 -->
+<div class="page">
+  <div class="page-header"><h1>📖 國語｜注音 ㄅㄆㄇㄈ</h1><span class="week">第 1 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="zh-row">
+    <div class="zh-cell">ㄅ</div><div class="zh-cell">ㄅ</div><div class="zh-cell">ㄆ</div>
+    <div class="zh-cell">ㄆ</div><div class="zh-cell">ㄇ</div><div class="zh-cell">ㄇ</div>
+  </div>
+  <div class="zh-row">
+    <div class="zh-cell">ㄈ</div><div class="zh-cell">ㄈ</div>
+    <div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div>
+  </div>
+  <h2>圈出正確答案</h2>
+  <p>1. 「爸爸」的第一個注音是： <strong>ㄅ　ㄆ　ㄇ　ㄈ</strong></p>
+  <p>2. 「媽媽」的第一個注音是： <strong>ㄅ　ㄆ　ㄇ　ㄈ</strong></p>
+  <p>3. 「風」的第一個注音是： <strong>ㄅ　ㄆ　ㄇ　ㄈ</strong></p>
+  <p>4. 「婆」的第一個注音是： <strong>ㄅ　ㄆ　ㄇ　ㄈ</strong></p>
+
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>ㄅ</td><td>🍎 媽媽</td></tr>
+    <tr><td>ㄆ</td><td>👶 爸爸</td></tr>
+    <tr><td>ㄇ</td><td>🍃 風</td></tr>
+    <tr><td>ㄈ</td><td>👵 婆婆</td></tr>
+  </table>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔢 數學｜認識 1-10</h1><span class="week">第 1 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫數字</h2>
+  <div class="write-row">
+    <div class="write-cell">1</div><div class="write-cell">2</div><div class="write-cell">3</div><div class="write-cell">4</div>
+    <div class="write-cell">5</div><div class="write-cell">6</div><div class="write-cell">7</div><div class="write-cell">8</div>
+  </div>
+  <div class="write-row">
+    <div class="write-cell">9</div><div class="write-cell">10</div>
+    <div class="write-cell empty">1</div><div class="write-cell empty">2</div><div class="write-cell empty">3</div>
+    <div class="write-cell empty">4</div><div class="write-cell empty">5</div><div class="write-cell empty">6</div>
+  </div>
+
+  <h2>數一數，填上數字</h2>
+  <div class="math-grid">
+    <div class="math-q">🍎🍎🍎　= <span class="blank"></span></div>
+    <div class="math-q">⭐⭐⭐⭐⭐　= <span class="blank"></span></div>
+    <div class="math-q">🐱🐱　= <span class="blank"></span></div>
+    <div class="math-q">🌸🌸🌸🌸🌸🌸　= <span class="blank"></span></div>
+    <div class="math-q">🍓🍓🍓🍓🍓🍓🍓　= <span class="blank"></span></div>
+    <div class="math-q">🚗🚗🚗🚗　= <span class="blank"></span></div>
+  </div>
+
+  <h2>畫一畫</h2>
+  <p>請在框框內畫出對應數量的 ⭐</p>
+  <div class="math-grid">
+    <div class="math-q" style="min-height:80px">3 顆星</div>
+    <div class="math-q" style="min-height:80px">5 顆星</div>
+    <div class="math-q" style="min-height:80px">7 顆星</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔤 英語｜A B C D E</h1><span class="week">第 1 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫字母</h2>
+  <div class="en-row"><div class="en-line"><span class="en-trace">A A A a a a</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">B B B b b b</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">C C C c c c</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">D D D d d d</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">E E E e e e</span></div></div>
+
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>A</td><td>🐱 Cat</td></tr>
+    <tr><td>B</td><td>🍎 Apple</td></tr>
+    <tr><td>C</td><td>🥚 Egg</td></tr>
+    <tr><td>D</td><td>⚽ Ball</td></tr>
+    <tr><td>E</td><td>🐶 Dog</td></tr>
+  </table>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🌟 生活｜整理書包</h1><span class="week">第 1 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>我的書包檢查表</h2>
+  <p>請每天上學前打勾，看看書包是不是都帶齊了：</p>
+  <div class="check-item">☐ 📚 課本</div>
+  <div class="check-item">☐ 📒 作業簿</div>
+  <div class="check-item">☐ ✏️ 鉛筆盒（鉛筆、橡皮擦、尺）</div>
+  <div class="check-item">☐ 💧 水壺</div>
+  <div class="check-item">☐ 🍱 便當盒 / 餐具</div>
+  <div class="check-item">☐ 👕 手帕、衛生紙</div>
+  <div class="check-item">☐ 📞 聯絡簿</div>
+
+  <h2>圈一圈：哪些可以帶去學校？</h2>
+  <p>請在 ⭕ 可以帶的東西旁邊打勾，❌ 不可以的畫叉。</p>
+  <div class="color-box">
+    <div class="color-cell"><div class="ico">📚</div>課本</div>
+    <div class="color-cell"><div class="ico">🎮</div>電動玩具</div>
+    <div class="color-cell"><div class="ico">💧</div>水壺</div>
+    <div class="color-cell"><div class="ico">🐶</div>寵物</div>
+    <div class="color-cell"><div class="ico">✏️</div>鉛筆</div>
+    <div class="color-cell"><div class="ico">🍭</div>糖果</div>
+    <div class="color-cell"><div class="ico">📒</div>作業簿</div>
+    <div class="color-cell"><div class="ico">📱</div>手機</div>
+  </div>
+</div>
+
+<!-- 第 2 週 -->
+<div class="page">
+  <div class="page-header"><h1>📖 國語｜注音 ㄉㄊㄋㄌ</h1><span class="week">第 2 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="zh-row">
+    <div class="zh-cell">ㄉ</div><div class="zh-cell">ㄉ</div><div class="zh-cell">ㄊ</div>
+    <div class="zh-cell">ㄊ</div><div class="zh-cell">ㄋ</div><div class="zh-cell">ㄋ</div>
+  </div>
+  <div class="zh-row">
+    <div class="zh-cell">ㄌ</div><div class="zh-cell">ㄌ</div>
+    <div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div>
+  </div>
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>ㄉ</td><td>👵 老師</td></tr>
+    <tr><td>ㄊ</td><td>👈 你</td></tr>
+    <tr><td>ㄋ</td><td>🐘 大象</td></tr>
+    <tr><td>ㄌ</td><td>👦 他</td></tr>
+  </table>
+  <h2>練習認字</h2>
+  <p>請圈出注音對應的中文字：</p>
+  <p>ㄉㄚˋ → <strong>大　小　上　下</strong></p>
+  <p>ㄒㄧㄠˇ → <strong>大　小　上　下</strong></p>
+  <p>ㄕㄤˋ → <strong>大　小　上　下</strong></p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔢 數學｜認識 11-20</h1><span class="week">第 2 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="write-row">
+    <div class="write-cell">11</div><div class="write-cell">12</div><div class="write-cell">13</div><div class="write-cell">14</div>
+    <div class="write-cell">15</div><div class="write-cell">16</div><div class="write-cell">17</div><div class="write-cell">18</div>
+  </div>
+  <div class="write-row">
+    <div class="write-cell">19</div><div class="write-cell">20</div>
+    <div class="write-cell empty">.</div><div class="write-cell empty">.</div><div class="write-cell empty">.</div>
+    <div class="write-cell empty">.</div><div class="write-cell empty">.</div><div class="write-cell empty">.</div>
+  </div>
+  <h2>填空：接下來是？</h2>
+  <div class="math-grid">
+    <div class="math-q">10、11、<span class="blank"></span>、13</div>
+    <div class="math-q">14、15、<span class="blank"></span>、17</div>
+    <div class="math-q">17、<span class="blank"></span>、19、20</div>
+    <div class="math-q">11、<span class="blank"></span>、13、14</div>
+    <div class="math-q">15、16、17、<span class="blank"></span></div>
+    <div class="math-q">18、<span class="blank"></span>、20</div>
+  </div>
+  <h2>比大小（圈出比較大的）</h2>
+  <p>12　vs　18　／　15　vs　11　／　19　vs　20　／　13　vs　17</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔤 英語｜F G H I J</h1><span class="week">第 2 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫字母</h2>
+  <div class="en-row"><div class="en-line"><span class="en-trace">F F F f f f</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">G G G g g g</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">H H H h h h</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">I I I i i i</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">J J J j j j</span></div></div>
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>F</td><td>🎩 Hat</td></tr>
+    <tr><td>G</td><td>🐟 Fish</td></tr>
+    <tr><td>H</td><td>🐐 Goat</td></tr>
+    <tr><td>I</td><td>🧃 Juice</td></tr>
+    <tr><td>J</td><td>🧊 Ice</td></tr>
+  </table>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🌟 生活｜上課好習慣</h1><span class="week">第 2 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>我的學校行為手冊</h2>
+  <p>每天做到的請打 ⭕，沒做到的請畫 ❌：</p>
+  <div class="check-item">☐ 想說話前先舉手</div>
+  <div class="check-item">☐ 老師講話時安靜聽</div>
+  <div class="check-item">☐ 上廁所要排隊</div>
+  <div class="check-item">☐ 走廊不奔跑</div>
+  <div class="check-item">☐ 自己保管自己的東西</div>
+  <div class="check-item">☐ 收書包要整齊</div>
+  <div class="check-item">☐ 跟同學說話有禮貌</div>
+
+  <h2>情境練習</h2>
+  <p><strong>1.</strong> 上課時我想喝水，我應該：</p>
+  <p>　　○ 直接打開水壺喝　　○ 舉手問老師　　○ 等下課再喝</p>
+  <p><strong>2.</strong> 我跟同學吵架了，我應該：</p>
+  <p>　　○ 打他　　○ 跟老師說　　○ 不理他</p>
+  <p><strong>3.</strong> 不會的問題，我應該：</p>
+  <p>　　○ 哭起來　　○ 舉手問老師　　○ 抄旁邊的</p>
+</div>
+
+<!-- 第 3 週 -->
+<div class="page">
+  <div class="page-header"><h1>📖 國語｜ㄍㄎㄏ &amp; 聲調</h1><span class="week">第 3 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="zh-row">
+    <div class="zh-cell">ㄍ</div><div class="zh-cell">ㄍ</div>
+    <div class="zh-cell">ㄎ</div><div class="zh-cell">ㄎ</div>
+    <div class="zh-cell">ㄏ</div><div class="zh-cell">ㄏ</div>
+  </div>
+  <h2>四聲練習</h2>
+  <p>請念念看，並圈出對應的聲調符號：</p>
+  <p>媽 ㄇㄚ → <strong>　ˊ　ˇ　ˋ　˙</strong></p>
+  <p>馬 ㄇㄚˇ → <strong>　ˊ　ˇ　ˋ　˙</strong></p>
+  <p>罵 ㄇㄚˋ → <strong>　ˊ　ˇ　ˋ　˙</strong></p>
+  <p>麻 ㄇㄚˊ → <strong>　ˊ　ˇ　ˋ　˙</strong></p>
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>ㄍㄜ ㄍㄜ</td><td>好</td></tr>
+    <tr><td>ㄎㄜˋ</td><td>哥哥</td></tr>
+    <tr><td>ㄏㄠˇ</td><td>課</td></tr>
+  </table>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔢 數學｜10 以內加法</h1><span class="week">第 3 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>請計算</h2>
+  <div class="math-grid">
+    <div class="math-q">1 + 2 = <span class="blank"></span></div>
+    <div class="math-q">3 + 4 = <span class="blank"></span></div>
+    <div class="math-q">2 + 5 = <span class="blank"></span></div>
+    <div class="math-q">4 + 4 = <span class="blank"></span></div>
+    <div class="math-q">3 + 6 = <span class="blank"></span></div>
+    <div class="math-q">5 + 5 = <span class="blank"></span></div>
+    <div class="math-q">2 + 7 = <span class="blank"></span></div>
+    <div class="math-q">1 + 8 = <span class="blank"></span></div>
+    <div class="math-q">6 + 3 = <span class="blank"></span></div>
+  </div>
+  <h2>應用題</h2>
+  <p>1. 小華有 3 顆糖果，媽媽再給她 4 顆，現在她有幾顆？　答：<span class="blank" style="min-width:60px"></span> 顆</p>
+  <p>2. 籃子裡有 2 顆蘋果和 5 顆橘子，總共有幾顆水果？　答：<span class="blank" style="min-width:60px"></span> 顆</p>
+  <p>3. 教室有 4 個男生，3 個女生，總共幾個人？　答：<span class="blank" style="min-width:60px"></span> 個</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔤 英語｜家人 Family</h1><span class="week">第 3 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Dad Dad Dad</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Mom Mom Mom</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Sister</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Brother</span></div></div>
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>Dad</td><td>👩 媽媽</td></tr>
+    <tr><td>Mom</td><td>👦 哥哥</td></tr>
+    <tr><td>Sister</td><td>👨 爸爸</td></tr>
+    <tr><td>Brother</td><td>👧 姊姊</td></tr>
+  </table>
+  <h2>填空</h2>
+  <p>This is my <span class="blank" style="min-width:80px"></span> . (爸爸)</p>
+  <p>I love my <span class="blank" style="min-width:80px"></span> . (媽媽)</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🌟 生活｜我會照顧自己</h1><span class="week">第 3 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>每天的自理小任務</h2>
+  <p>請媽媽/爸爸幫忙打勾。一週做到 5 次以上，給自己一個大大的擁抱！</p>
+  <table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:11pt">
+    <tr style="background:#FFB5C5;color:#fff"><th style="padding:6px;border:1px solid #fff">任務</th>
+    <th style="padding:6px;border:1px solid #fff">一</th><th style="padding:6px;border:1px solid #fff">二</th>
+    <th style="padding:6px;border:1px solid #fff">三</th><th style="padding:6px;border:1px solid #fff">四</th>
+    <th style="padding:6px;border:1px solid #fff">五</th><th style="padding:6px;border:1px solid #fff">六</th>
+    <th style="padding:6px;border:1px solid #fff">日</th></tr>
+    <tr><td style="padding:6px;border:1px solid #ddd">自己穿衣服</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td style="padding:6px;border:1px solid #ddd">早晚刷牙</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td style="padding:6px;border:1px solid #ddd">飯前洗手</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td style="padding:6px;border:1px solid #ddd">自己摺被子</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td style="padding:6px;border:1px solid #ddd">收拾玩具</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+  </table>
+</div>
+
+<!-- 第 4 週 -->
+<div class="page">
+  <div class="page-header"><h1>📖 國語｜介音 ㄧㄨㄩ</h1><span class="week">第 4 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="zh-row">
+    <div class="zh-cell">ㄧ</div><div class="zh-cell">ㄧ</div>
+    <div class="zh-cell">ㄨ</div><div class="zh-cell">ㄨ</div>
+    <div class="zh-cell">ㄩ</div><div class="zh-cell">ㄩ</div>
+  </div>
+  <h2>拼音練習</h2>
+  <p>請寫出對應的注音（家長協助念給孩子聽）：</p>
+  <p>魚 → <span class="blank" style="min-width:60px"></span></p>
+  <p>雨 → <span class="blank" style="min-width:60px"></span></p>
+  <p>五 → <span class="blank" style="min-width:60px"></span></p>
+  <p>衣 → <span class="blank" style="min-width:60px"></span></p>
+  <h2>圈圈看</h2>
+  <p>下面的字，哪個字裡有介音「ㄧ」？</p>
+  <p><strong>米　書　樹　筆　花　貓　樹</strong></p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔢 數學｜10 以內減法</h1><span class="week">第 4 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>請計算</h2>
+  <div class="math-grid">
+    <div class="math-q">5 - 2 = <span class="blank"></span></div>
+    <div class="math-q">8 - 3 = <span class="blank"></span></div>
+    <div class="math-q">9 - 4 = <span class="blank"></span></div>
+    <div class="math-q">7 - 5 = <span class="blank"></span></div>
+    <div class="math-q">10 - 6 = <span class="blank"></span></div>
+    <div class="math-q">6 - 2 = <span class="blank"></span></div>
+    <div class="math-q">10 - 4 = <span class="blank"></span></div>
+    <div class="math-q">8 - 8 = <span class="blank"></span></div>
+    <div class="math-q">9 - 0 = <span class="blank"></span></div>
+  </div>
+  <h2>應用題</h2>
+  <p>1. 媽媽買了 10 顆蘋果，吃掉了 4 顆，還剩幾顆？　答：<span class="blank" style="min-width:60px"></span> 顆</p>
+  <p>2. 樹上有 8 隻小鳥，飛走了 3 隻，還剩幾隻？　答：<span class="blank" style="min-width:60px"></span> 隻</p>
+  <p>3. 我有 7 元，買糖果花了 5 元，還剩幾元？　答：<span class="blank" style="min-width:60px"></span> 元</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔤 英語｜動物 Animals</h1><span class="week">第 4 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Cat Cat Cat</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Dog Dog Dog</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Bird Bird</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Fish Fish</span></div></div>
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>Cat</td><td>🐶</td></tr>
+    <tr><td>Dog</td><td>🐱</td></tr>
+    <tr><td>Bird</td><td>🐟</td></tr>
+    <tr><td>Fish</td><td>🐦</td></tr>
+  </table>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🌟 生活｜觀察大自然</h1><span class="week">第 4 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>本週觀察日記</h2>
+  <p>請在家長帶領下，到戶外觀察並畫下來：</p>
+  <div style="border:2px dashed #999;height:200px;border-radius:8px;margin:10px 0"></div>
+  <p style="font-size:10pt;color:#666">（畫下你看到的：花、樹、雲、動物⋯⋯）</p>
+
+  <h2>垃圾分類小達人</h2>
+  <p>請把下面的物品連到正確的回收桶：</p>
+  <table class="match-table">
+    <tr><td>📰 報紙</td><td>♻️ 一般回收</td></tr>
+    <tr><td>🍎 蘋果核</td><td>🥬 廚餘</td></tr>
+    <tr><td>🍼 牛奶瓶</td><td>🗑️ 一般垃圾</td></tr>
+    <tr><td>🧻 衛生紙</td><td></td></tr>
+  </table>
+</div>
+
+<!-- 第 5 週 -->
+<div class="page">
+  <div class="page-header"><h1>📖 國語｜韻母 ㄚㄛㄜㄝ</h1><span class="week">第 5 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="zh-row">
+    <div class="zh-cell">ㄚ</div><div class="zh-cell">ㄚ</div>
+    <div class="zh-cell">ㄛ</div><div class="zh-cell">ㄛ</div>
+    <div class="zh-cell">ㄜ</div><div class="zh-cell">ㄜ</div>
+  </div>
+  <div class="zh-row">
+    <div class="zh-cell">ㄝ</div><div class="zh-cell">ㄝ</div>
+    <div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div>
+  </div>
+  <h2>拼一拼，連起來念</h2>
+  <p>ㄅ + ㄚ → <span class="blank" style="min-width:60px"></span>（爸的注音）</p>
+  <p>ㄇ + ㄚ → <span class="blank" style="min-width:60px"></span>（媽的注音）</p>
+  <p>ㄅ + ㄛ → <span class="blank" style="min-width:60px"></span>（玻的注音）</p>
+  <p>ㄍ + ㄜ → <span class="blank" style="min-width:60px"></span>（歌的注音）</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔢 數學｜認識形狀</h1><span class="week">第 5 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>找一找</h2>
+  <p>請在 ⭕ 圓形、□ 正方形、△ 三角形旁邊寫下它的名字：</p>
+  <div class="color-box">
+    <div class="color-cell"><div class="ico" style="font-size:3em">●</div>______</div>
+    <div class="color-cell"><div class="ico" style="font-size:3em">■</div>______</div>
+    <div class="color-cell"><div class="ico" style="font-size:3em">▲</div>______</div>
+    <div class="color-cell"><div class="ico" style="font-size:3em">▬</div>______</div>
+  </div>
+  <h2>生活中的形狀</h2>
+  <p>請把下面的物品連到正確的形狀：</p>
+  <table class="match-table">
+    <tr><td>⚽ 皮球</td><td>三角形</td></tr>
+    <tr><td>📱 手機</td><td>圓形</td></tr>
+    <tr><td>🍕 披薩切片</td><td>長方形</td></tr>
+    <tr><td>🎁 禮物盒</td><td>正方形</td></tr>
+  </table>
+  <h2>畫一畫</h2>
+  <p>請畫出：1 個圓形、2 個三角形、3 個正方形</p>
+  <div style="border:2px dashed #999;height:130px;border-radius:8px"></div>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔤 英語｜食物 Food</h1><span class="week">第 5 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Rice Rice</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Milk Milk</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Bread</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Egg Egg</span></div></div>
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>🍚</td><td>Bread</td></tr>
+    <tr><td>🥛</td><td>Egg</td></tr>
+    <tr><td>🍞</td><td>Rice</td></tr>
+    <tr><td>🥚</td><td>Milk</td></tr>
+  </table>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🌟 生活｜健康吃飯</h1><span class="week">第 5 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>畫出我的健康餐盤</h2>
+  <p>一餐應該有：1/2 蔬菜水果、1/4 全穀、1/4 蛋白質</p>
+  <div style="border:3px solid #6BCB77;border-radius:50%;width:250px;height:250px;margin:10px auto"></div>
+
+  <h2>餐桌禮儀檢查</h2>
+  <div class="check-item">☐ 吃飯前先洗手</div>
+  <div class="check-item">☐ 用餐時不滑手機</div>
+  <div class="check-item">☐ 細嚼慢嚥</div>
+  <div class="check-item">☐ 嘴巴閉著嚼東西</div>
+  <div class="check-item">☐ 吃飽說「我吃飽了」</div>
+  <div class="check-item">☐ 自己端餐盤</div>
+</div>
+
+<!-- 第 6 週 -->
+<div class="page">
+  <div class="page-header"><h1>📖 國語｜韻母 ㄞㄟㄠㄡ</h1><span class="week">第 6 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="zh-row">
+    <div class="zh-cell">ㄞ</div><div class="zh-cell">ㄞ</div>
+    <div class="zh-cell">ㄟ</div><div class="zh-cell">ㄟ</div>
+    <div class="zh-cell">ㄠ</div><div class="zh-cell">ㄠ</div>
+  </div>
+  <div class="zh-row">
+    <div class="zh-cell">ㄡ</div><div class="zh-cell">ㄡ</div>
+    <div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div>
+  </div>
+  <h2>拼音練習</h2>
+  <p>ㄇ + ㄠ → <span class="blank" style="min-width:60px"></span>（貓的注音）</p>
+  <p>ㄅ + ㄠˇ → <span class="blank" style="min-width:60px"></span>（寶的注音）</p>
+  <p>ㄉ + ㄡ → <span class="blank" style="min-width:60px"></span>（兜的注音）</p>
+  <p>ㄌ + ㄞˊ → <span class="blank" style="min-width:60px"></span>（來的注音）</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔢 數學｜比大小 &amp; 混合</h1><span class="week">第 6 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>填上 &gt;、&lt; 或 =</h2>
+  <div class="math-grid">
+    <div class="math-q">7 <span class="blank"></span> 5</div>
+    <div class="math-q">3 <span class="blank"></span> 8</div>
+    <div class="math-q">6 <span class="blank"></span> 6</div>
+    <div class="math-q">15 <span class="blank"></span> 12</div>
+    <div class="math-q">18 <span class="blank"></span> 20</div>
+    <div class="math-q">9 <span class="blank"></span> 11</div>
+  </div>
+  <h2>加減混合</h2>
+  <div class="math-grid">
+    <div class="math-q">2 + 3 - 1 = <span class="blank"></span></div>
+    <div class="math-q">5 - 2 + 4 = <span class="blank"></span></div>
+    <div class="math-q">6 + 2 - 3 = <span class="blank"></span></div>
+    <div class="math-q">8 - 4 + 5 = <span class="blank"></span></div>
+    <div class="math-q">3 + 3 + 3 = <span class="blank"></span></div>
+    <div class="math-q">10 - 5 - 2 = <span class="blank"></span></div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔤 英語｜數字 1-10</h1><span class="week">第 6 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="en-row"><div class="en-line"><span class="en-trace">One Two</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Three Four</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Five Six</span></div></div>
+  <h2>連連看</h2>
+  <table class="match-table">
+    <tr><td>1</td><td>Three</td></tr>
+    <tr><td>2</td><td>One</td></tr>
+    <tr><td>3</td><td>Five</td></tr>
+    <tr><td>4</td><td>Two</td></tr>
+    <tr><td>5</td><td>Four</td></tr>
+  </table>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🌟 生活｜認識時間</h1><span class="week">第 6 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>我的一天作息表</h2>
+  <p>請畫出每個時段我在做什麼：</p>
+  <table style="width:100%;border-collapse:collapse;font-size:11pt">
+    <tr style="background:#7AC7E5;color:#fff"><th style="padding:8px;border:1px solid #fff;width:25%">時間</th><th style="padding:8px;border:1px solid #fff">我在做什麼</th></tr>
+    <tr><td style="padding:10px;border:1px solid #ddd">早上 7:00</td><td style="padding:10px;border:1px solid #ddd"></td></tr>
+    <tr><td style="padding:10px;border:1px solid #ddd">早上 8:00</td><td style="padding:10px;border:1px solid #ddd"></td></tr>
+    <tr><td style="padding:10px;border:1px solid #ddd">中午 12:00</td><td style="padding:10px;border:1px solid #ddd"></td></tr>
+    <tr><td style="padding:10px;border:1px solid #ddd">下午 4:00</td><td style="padding:10px;border:1px solid #ddd"></td></tr>
+    <tr><td style="padding:10px;border:1px solid #ddd">晚上 7:00</td><td style="padding:10px;border:1px solid #ddd"></td></tr>
+    <tr><td style="padding:10px;border:1px solid #ddd">晚上 9:00</td><td style="padding:10px;border:1px solid #ddd"></td></tr>
+  </table>
+</div>
+
+<!-- 第 7 週 -->
+<div class="page">
+  <div class="page-header"><h1>📖 國語｜韻母 ㄢㄣㄤㄥ</h1><span class="week">第 7 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="zh-row">
+    <div class="zh-cell">ㄢ</div><div class="zh-cell">ㄢ</div>
+    <div class="zh-cell">ㄣ</div><div class="zh-cell">ㄣ</div>
+    <div class="zh-cell">ㄤ</div><div class="zh-cell">ㄤ</div>
+  </div>
+  <div class="zh-row">
+    <div class="zh-cell">ㄥ</div><div class="zh-cell">ㄥ</div>
+    <div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div><div class="zh-cell"></div>
+  </div>
+  <h2>拼一拼</h2>
+  <p>ㄕ + ㄢ → <span class="blank" style="min-width:60px"></span>（山的注音）</p>
+  <p>ㄈ + ㄥ → <span class="blank" style="min-width:60px"></span>（風的注音）</p>
+  <p>ㄉ + ㄤ → <span class="blank" style="min-width:60px"></span>（噹的注音）</p>
+  <p>ㄇ + ㄣˊ → <span class="blank" style="min-width:60px"></span>（門的注音）</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔢 數學｜20 內加減 &amp; 序數</h1><span class="week">第 7 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>請計算</h2>
+  <div class="math-grid">
+    <div class="math-q">11 + 4 = <span class="blank"></span></div>
+    <div class="math-q">12 + 5 = <span class="blank"></span></div>
+    <div class="math-q">14 + 3 = <span class="blank"></span></div>
+    <div class="math-q">18 - 6 = <span class="blank"></span></div>
+    <div class="math-q">15 - 5 = <span class="blank"></span></div>
+    <div class="math-q">20 - 8 = <span class="blank"></span></div>
+    <div class="math-q">10 + 7 = <span class="blank"></span></div>
+    <div class="math-q">13 + 6 = <span class="blank"></span></div>
+    <div class="math-q">19 - 9 = <span class="blank"></span></div>
+  </div>
+  <h2>序數練習</h2>
+  <p>運動會上：🥇 第一名 / 🥈 第二名 / 🥉 第三名</p>
+  <p>1. 小明拿到🥇，他是第 <span class="blank" style="min-width:40px"></span> 名</p>
+  <p>2. 排隊時，我從前面數來是第 <span class="blank" style="min-width:40px"></span> 個</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔤 英語｜顏色 Colors</h1><span class="week">第 7 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Red Red</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Blue Blue</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Yellow</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Green</span></div></div>
+  <h2>塗顏色</h2>
+  <p>請依照英文字塗上正確的顏色：</p>
+  <div class="color-box">
+    <div class="color-cell">⬜<br>Red</div>
+    <div class="color-cell">⬜<br>Blue</div>
+    <div class="color-cell">⬜<br>Yellow</div>
+    <div class="color-cell">⬜<br>Green</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🌟 生活｜訂我的小目標</h1><span class="week">第 7 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>我的暑假小目標</h2>
+  <p>請和家人一起討論，寫下 3 個你想完成的事：</p>
+  <p>1. 🎯 <span class="blank" style="min-width:300px"></span></p>
+  <p>2. 🎯 <span class="blank" style="min-width:300px"></span></p>
+  <p>3. 🎯 <span class="blank" style="min-width:300px"></span></p>
+
+  <h2>解決問題練習</h2>
+  <p><strong>狀況一：</strong>新玩具不知道怎麼玩，我可以⋯⋯</p>
+  <p>　　○ 哭　　○ 問大人　　○ 摔壞它</p>
+  <p><strong>狀況二：</strong>同學不跟我玩，我可以⋯⋯</p>
+  <p>　　○ 找別的朋友　　○ 大聲哭　　○ 主動邀請他</p>
+  <p><strong>狀況三：</strong>遇到不會的題目，我可以⋯⋯</p>
+  <p>　　○ 跳過繼續做　　○ 問老師　　○ 直接放棄</p>
+</div>
+
+<!-- 第 8 週 -->
+<div class="page">
+  <div class="page-header"><h1>📖 國語｜認讀國字</h1><span class="week">第 8 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="zh-row">
+    <div class="zh-cell">大</div><div class="zh-cell">大</div>
+    <div class="zh-cell">小</div><div class="zh-cell">小</div>
+    <div class="zh-cell">上</div><div class="zh-cell">上</div>
+  </div>
+  <div class="zh-row">
+    <div class="zh-cell">下</div><div class="zh-cell">下</div>
+    <div class="zh-cell">人</div><div class="zh-cell">人</div>
+    <div class="zh-cell">口</div><div class="zh-cell">口</div>
+  </div>
+  <h2>連連看（字→注音）</h2>
+  <table class="match-table">
+    <tr><td>大</td><td>ㄒㄧㄠˇ</td></tr>
+    <tr><td>小</td><td>ㄕㄤˋ</td></tr>
+    <tr><td>上</td><td>ㄉㄚˋ</td></tr>
+    <tr><td>下</td><td>ㄎㄡˇ</td></tr>
+    <tr><td>人</td><td>ㄖㄣˊ</td></tr>
+    <tr><td>口</td><td>ㄒㄧㄚˋ</td></tr>
+  </table>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔢 數學｜應用題綜合</h1><span class="week">第 8 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>動腦時間</h2>
+  <p>1. 小明有 5 顆糖，弟弟有 3 顆，他們一共有幾顆？　答：<span class="blank" style="min-width:60px"></span> 顆</p>
+  <p>2. 媽媽買了 10 個蘋果，吃掉 4 個，還剩幾個？　答：<span class="blank" style="min-width:60px"></span> 個</p>
+  <p>3. 班上有 8 個男生、7 個女生，總共幾人？　答：<span class="blank" style="min-width:60px"></span> 人</p>
+  <p>4. 我有 12 元，買糖花了 5 元，還剩幾元？　答：<span class="blank" style="min-width:60px"></span> 元</p>
+  <p>5. 籃子裡有 6 顆橘子，姊姊又放進去 4 顆，現在有幾顆？　答：<span class="blank" style="min-width:60px"></span> 顆</p>
+  <p>6. 運動會跑步比賽，我從前面數是第 3 名，從後面數是第 5 名，總共幾人？　答：<span class="blank" style="min-width:60px"></span> 人</p>
+
+  <h2>畫一畫</h2>
+  <p>請畫出 7 顆 ⭐，並把它們分成 3 顆和 4 顆兩堆。</p>
+  <div style="border:2px dashed #999;height:120px;border-radius:8px"></div>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🔤 英語｜問候 Greetings</h1><span class="week">第 8 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>跟著描寫</h2>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Hello Hi</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Bye Bye</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">Thank you</span></div></div>
+  <div class="en-row"><div class="en-line"><span class="en-trace">I am ___</span></div></div>
+
+  <h2>情境對話</h2>
+  <p>請選擇正確答案：</p>
+  <p>1. 早上見到老師說？　<strong>○ Bye　○ Hello　○ No</strong></p>
+  <p>2. 別人送你禮物說？　<strong>○ Hello　○ Thank you　○ Bye</strong></p>
+  <p>3. 自我介紹說？　<strong>○ Bye bye　○ I am ___　○ No no</strong></p>
+
+  <h2>自我介紹</h2>
+  <p>Hello! My name is <span class="blank" style="min-width:200px"></span> .</p>
+  <p>I am <span class="blank" style="min-width:50px"></span> years old. (我幾歲)</p>
+  <p>Nice to meet you!</p>
+</div>
+
+<div class="page">
+  <div class="page-header"><h1>🌟 生活｜我準備好了！</h1><span class="week">第 8 週</span></div>
+  <div class="name-box">姓名：<span></span> 日期：<span></span></div>
+  <h2>開學前大檢查 ✅</h2>
+  <p>請每天打勾，全部達成就準備好上小一囉！</p>
+  <div class="check-item">☐ 每天晚上 9 點前上床睡覺</div>
+  <div class="check-item">☐ 早上 7 點前能自己起床</div>
+  <div class="check-item">☐ 會自己刷牙、洗臉、穿衣服</div>
+  <div class="check-item">☐ 能專心做一件事 20 分鐘</div>
+  <div class="check-item">☐ 認得自己的名字（會寫更棒！）</div>
+  <div class="check-item">☐ 會自己用湯匙、筷子吃飯</div>
+  <div class="check-item">☐ 會自己整理書包</div>
+  <div class="check-item">☐ 知道爸媽的電話 / 家裡地址</div>
+  <div class="check-item">☐ 會說「請、謝謝、對不起」</div>
+  <div class="check-item">☐ 願意舉手回答問題</div>
+
+  <h2>給未來小一新生的我</h2>
+  <p>我最想跟小一的我說的一句話是：</p>
+  <div style="border:2px dashed #FF8FA3;border-radius:10px;padding:20px;min-height:80px;margin:10px 0"></div>
+
+  <div class="note" style="margin-top:20px;background:#FFE5EC;border-color:#FF8FA3">
+    <strong>🎉 恭喜你！</strong>完成了 8 週的暑假學習，你真的好棒！
+    開學那天，記得帶著你的笑容和勇氣，跟新同學說一聲「Hello！」
+    爸爸媽媽以你為傲 ❤️
+  </div>
+</div>
+
+</body>
+</html>

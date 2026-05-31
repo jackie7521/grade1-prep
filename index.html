@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小一銜接 暑假 8 週快樂學習</title>
+<style>
+  :root{
+    --bg:#FFF8E7; --card:#FFFFFF; --primary:#FF8FA3; --primary2:#FFB5C5;
+    --accent:#7AC7E5; --accent2:#A8E0F2; --yellow:#FFD93D; --green:#6BCB77;
+    --purple:#C589E8; --text:#3A3A3A; --muted:#888;
+    --shadow:0 6px 20px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;
+    background-image:
+      radial-gradient(circle at 10% 20%, #FFE5EC 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, #E0F4FF 0%, transparent 40%);
+  }
+  header{
+    text-align:center;padding:30px 20px 20px;
+    background:linear-gradient(135deg,#FFB5C5,#7AC7E5);
+    color:#fff;border-radius:0 0 30px 30px;box-shadow:var(--shadow);
+  }
+  header h1{font-size:2.2em;margin-bottom:8px;text-shadow:2px 2px 0 rgba(0,0,0,.1)}
+  header p{font-size:1.1em;opacity:.95}
+  .container{max-width:1100px;margin:0 auto;padding:24px}
+
+  .week-nav{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+    gap:10px;margin:20px 0;
+  }
+  .week-btn{
+    background:var(--card);border:3px solid transparent;border-radius:16px;
+    padding:14px 8px;font-size:.95em;font-weight:bold;cursor:pointer;
+    box-shadow:var(--shadow);transition:all .2s;text-align:center;
+  }
+  .week-btn:hover{transform:translateY(-3px)}
+  .week-btn.active{
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    color:#fff;border-color:var(--yellow);
+  }
+  .week-btn .num{display:block;font-size:1.3em;margin-bottom:2px}
+
+  .subject-tabs{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 16px}
+  .subject-btn{
+    flex:1;min-width:140px;padding:14px;border:none;border-radius:14px;
+    font-size:1.05em;font-weight:bold;cursor:pointer;color:#fff;
+    box-shadow:var(--shadow);transition:transform .2s;
+  }
+  .subject-btn:hover{transform:translateY(-2px)}
+  .subject-btn[data-s="zh"]{background:#FF8FA3}
+  .subject-btn[data-s="math"]{background:#7AC7E5}
+  .subject-btn[data-s="en"]{background:#FFD93D;color:#5a4a00}
+  .subject-btn[data-s="life"]{background:#6BCB77}
+  .subject-btn.active{outline:4px solid var(--purple);outline-offset:2px}
+
+  .lesson{
+    background:var(--card);border-radius:20px;padding:24px;
+    box-shadow:var(--shadow);margin-bottom:20px;animation:fadeIn .4s;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .lesson h2{color:var(--primary);font-size:1.6em;margin-bottom:6px}
+  .lesson .goal{
+    background:#FFF4D6;border-left:5px solid var(--yellow);
+    padding:10px 14px;border-radius:8px;margin:10px 0 18px;font-size:.95em;
+  }
+  .lesson h3{
+    color:var(--accent);margin:18px 0 10px;font-size:1.2em;
+    padding-bottom:6px;border-bottom:2px dashed #ddd;
+  }
+
+  .grid-items{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+    gap:10px;margin:12px 0;
+  }
+  .item-card{
+    background:#FFF4D6;border:3px solid #FFD93D;border-radius:14px;
+    padding:14px 6px;text-align:center;cursor:pointer;
+    font-size:1.8em;font-weight:bold;transition:all .2s;user-select:none;
+  }
+  .item-card:hover{background:#FFD93D;transform:scale(1.05)}
+  .item-card .label{display:block;font-size:.45em;color:#666;margin-top:4px;font-weight:normal;line-height:1.3}
+  .item-card.zh{color:#D14D72}
+  .item-card.math{color:#1B6B93;background:#D4F1F4;border-color:#7AC7E5}
+  .item-card.math:hover{background:#7AC7E5;color:#fff}
+  .item-card.en{color:#946B00;background:#FFF4D6}
+  .item-card.life{color:#2D6A4F;background:#D8F3DC;border-color:#6BCB77}
+  .item-card.life:hover{background:#6BCB77;color:#fff}
+
+  .quiz{
+    background:#F0F8FF;border-radius:14px;padding:16px;margin:12px 0;
+    border:2px solid var(--accent2);
+  }
+  .quiz .q{font-size:1.2em;font-weight:bold;margin-bottom:12px}
+  .options{display:flex;flex-wrap:wrap;gap:10px}
+  .opt{
+    padding:12px 20px;background:#fff;border:3px solid #ddd;
+    border-radius:12px;cursor:pointer;font-size:1.1em;font-weight:bold;
+    transition:all .15s;min-width:60px;text-align:center;
+  }
+  .opt:hover{border-color:var(--primary)}
+  .opt.correct{background:#D8F3DC;border-color:var(--green);animation:pop .3s}
+  .opt.wrong{background:#FFE5EC;border-color:#FF8FA3}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+  .feedback{margin-top:10px;font-weight:bold;min-height:24px}
+
+  .writing-area{
+    background:#fff;border:2px solid #ddd;border-radius:12px;
+    padding:14px;margin:12px 0;
+  }
+  .stroke-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));
+    gap:8px;margin:10px 0;
+  }
+  .stroke-cell{
+    aspect-ratio:1;border:2px dashed #aaa;background:
+      linear-gradient(to right,transparent 49%,#ffd 49%,#ffd 51%,transparent 51%),
+      linear-gradient(to bottom,transparent 49%,#ffd 49%,#ffd 51%,transparent 51%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2em;color:#FFC0CB;font-weight:bold;border-radius:6px;
+  }
+
+  .parent-tip{
+    background:#FFF4D6;border-radius:12px;padding:12px 16px;margin:16px 0;
+    border-left:5px solid var(--yellow);font-size:.95em;
+  }
+  .parent-tip strong{color:#D14D72}
+
+  #reward{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(0,0,0,.6);display:none;align-items:center;
+    justify-content:center;z-index:100;
+  }
+  #reward.show{display:flex;animation:fadeIn .3s}
+  .reward-box{
+    background:#fff;padding:40px;border-radius:24px;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:400px;
+  }
+  .reward-box .emoji{font-size:5em;margin-bottom:10px;animation:bounce .6s infinite alternate}
+  @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-15px)}}
+  .reward-box h2{color:var(--primary);margin-bottom:12px}
+  .btn{
+    padding:10px 20px;border:none;border-radius:10px;font-size:1em;
+    font-weight:bold;cursor:pointer;background:var(--primary);color:#fff;
+    box-shadow:var(--shadow);
+  }
+  .stars{font-size:1.6em;letter-spacing:4px;margin:10px 0;color:#FFD93D}
+
+  footer{text-align:center;padding:30px;color:var(--muted);font-size:.9em}
+
+  @media(max-width:600px){
+    header h1{font-size:1.6em}
+    .subject-btn{flex:1 1 45%}
+    .lesson{padding:16px}
+    .item-card{font-size:1.5em}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎒 我要上小一囉！</h1>
+  <p>暑假 8 週快樂學習｜國語・數學・英語・生活</p>
+</header>
+
+<div class="container">
+  <div class="week-nav" id="weekNav"></div>
+  <div class="subject-tabs" id="subjectTabs"></div>
+  <div id="lessonContent"></div>
+
+  <div class="parent-tip">
+    <strong>👨‍👩‍👧 給家長的話：</strong>
+    每天建議學習 30-40 分鐘，分 2 次完成（早上 20 分鐘國語+數學，下午 15 分鐘英語+生活）。
+    陪伴時請多鼓勵、少糾正，讓孩子保持對學習的好奇心 ❤️
+    點任一卡片可以聽發音；做完小試身手會得到星星獎勵！
+  </div>
+</div>
+
+<div id="reward">
+  <div class="reward-box">
+    <div class="emoji">🎉</div>
+    <h2>太棒了！</h2>
+    <p>你完成今天的練習了！</p>
+    <div class="stars">⭐⭐⭐</div>
+    <button class="btn" onclick="closeReward()">繼續加油</button>
+  </div>
+</div>
+
+<footer>© 小一銜接快樂學習｜祝你成為快樂的小學生 🌈</footer>
+
+<script>
+const curriculum = [
+  {week:1, theme:"我是小學生了！",
+    zh:{title:"認識注音 ㄅㄆㄇㄈ", goal:"認識 4 個聲符的形狀與發音，學會正確握筆。",
+      items:[{char:"ㄅ",sound:"ㄅㄚ",label:"ㄅㄚˋ 爸"},{char:"ㄆ",sound:"ㄆㄛ",label:"ㄆㄛˊ 婆"},{char:"ㄇ",sound:"ㄇㄚ",label:"ㄇㄚ 媽"},{char:"ㄈ",sound:"ㄈㄥ",label:"ㄈㄥ 風"}],
+      quiz:{q:"「媽媽」的『ㄇㄚ』，第一個注音是？",opts:["ㄅ","ㄆ","ㄇ","ㄈ"],ans:2},
+      writing:["ㄅ","ㄆ","ㄇ","ㄈ"]},
+    math:{title:"認識 1-10", goal:"能說出、認讀、書寫 1-10，並數出對應數量。",
+      items:[{char:"1",sound:"一",label:"🍎"},{char:"2",sound:"二",label:"🐱🐱"},{char:"3",sound:"三",label:"🌟🌟🌟"},{char:"4",sound:"四",label:"🚗🚗🚗🚗"},{char:"5",sound:"五",label:"✋"},{char:"6",sound:"六",label:"🍓×6"},{char:"7",sound:"七",label:"🌈"},{char:"8",sound:"八",label:"🐙"},{char:"9",sound:"九",label:"🐱×9"},{char:"10",sound:"十",label:"🙌"}],
+      quiz:{q:"🌸🌸🌸🌸 有幾朵花？",opts:["3","4","5","6"],ans:1},
+      writing:["1","2","3","4","5","6","7","8","9","10"]},
+    en:{title:"字母 A B C D E", goal:"認識 A-E 大小寫與單字。",
+      items:[{char:"Aa",sound:"A",label:"Apple 🍎"},{char:"Bb",sound:"B",label:"Ball ⚽"},{char:"Cc",sound:"C",label:"Cat 🐱"},{char:"Dd",sound:"D",label:"Dog 🐶"},{char:"Ee",sound:"E",label:"Egg 🥚"}],
+      quiz:{q:"Apple 開頭的字母是？",opts:["A","B","C","D"],ans:0},
+      writing:["A","B","C","D","E"]},
+    life:{title:"整理我的書包", goal:"知道書包該放什麼，怎麼整齊收納。",
+      items:[{char:"📚",sound:"課本",label:"課本"},{char:"📒",sound:"作業簿",label:"作業簿"},{char:"✏️",sound:"鉛筆盒",label:"鉛筆盒"},{char:"💧",sound:"水壺",label:"水壺"},{char:"🍱",sound:"便當",label:"便當"},{char:"👕",sound:"手帕",label:"手帕"}],
+      quiz:{q:"上學前要先檢查什麼？",opts:["玩具","書包","遙控器","糖果"],ans:1}}},
+
+  {week:2, theme:"快樂校園生活",
+    zh:{title:"注音 ㄉㄊㄋㄌ", goal:"認識 4 個聲符的形狀與發音。",
+      items:[{char:"ㄉ",sound:"ㄉㄚ",label:"ㄉㄚˋ 大"},{char:"ㄊ",sound:"ㄊㄚ",label:"ㄊㄚ 他"},{char:"ㄋ",sound:"ㄋㄧ",label:"ㄋㄧˇ 你"},{char:"ㄌ",sound:"ㄌㄠ",label:"ㄌㄠˇ 老"}],
+      quiz:{q:"「老師」的『ㄌㄠˇ』第一個注音是？",opts:["ㄉ","ㄊ","ㄋ","ㄌ"],ans:3},
+      writing:["ㄉ","ㄊ","ㄋ","ㄌ"]},
+    math:{title:"認識 11-20", goal:"能認讀 11-20，理解十位與個位。",
+      items:[{char:"11",sound:"十一",label:"⭐×11"},{char:"12",sound:"十二",label:"⭐×12"},{char:"15",sound:"十五",label:"⭐×15"},{char:"18",sound:"十八",label:"⭐×18"},{char:"20",sound:"二十",label:"⭐×20"}],
+      quiz:{q:"15 比 12 大還是小？",opts:["大","小","一樣"],ans:0},
+      writing:["11","12","13","14","15","16","17","18","19","20"]},
+    en:{title:"字母 F G H I J", goal:"認識 F-J 大小寫與單字。",
+      items:[{char:"Ff",sound:"F",label:"Fish 🐟"},{char:"Gg",sound:"G",label:"Goat 🐐"},{char:"Hh",sound:"H",label:"Hat 🎩"},{char:"Ii",sound:"I",label:"Ice 🧊"},{char:"Jj",sound:"J",label:"Juice 🧃"}],
+      quiz:{q:"Fish 開頭字母是？",opts:["F","G","H","J"],ans:0},
+      writing:["F","G","H","I","J"]},
+    life:{title:"上課好習慣", goal:"學會舉手發言、排隊、上下課規範。",
+      items:[{char:"🙋",sound:"舉手",label:"舉手發言"},{char:"👫",sound:"排隊",label:"排隊上廁所"},{char:"🤫",sound:"安靜",label:"上課安靜"},{char:"🚶",sound:"慢慢走",label:"走廊慢慢走"}],
+      quiz:{q:"想要問問題應該？",opts:["大聲說","舉手","站起來","跑去找老師"],ans:1}}},
+
+  {week:3, theme:"我愛我的家人",
+    zh:{title:"注音 ㄍㄎㄏ", goal:"認識 ㄍㄎㄏ 並認讀詞語。",
+      items:[{char:"ㄍ",sound:"ㄍㄜ",label:"ㄍㄜ 哥"},{char:"ㄎ",sound:"ㄎㄜ",label:"ㄎㄜˋ 課"},{char:"ㄏ",sound:"ㄏㄠ",label:"ㄏㄠˇ 好"}],
+      quiz:{q:"「哥哥」第一個注音是？",opts:["ㄍ","ㄎ","ㄏ"],ans:0},
+      writing:["ㄍ","ㄎ","ㄏ"]},
+    math:{title:"10 以內加法", goal:"理解加法是把兩個量合起來。",
+      items:[{char:"2+1=3",sound:"二加一等於三",label:"🍎🍎+🍎"},{char:"3+2=5",sound:"三加二等於五",label:"⭐⭐⭐+⭐⭐"},{char:"4+3=7",sound:"四加三等於七",label:""},{char:"5+5=10",sound:"五加五等於十",label:"✋+✋"}],
+      quiz:{q:"3 + 4 = ?",opts:["6","7","8","9"],ans:1},
+      writing:["+","="]},
+    en:{title:"家人 Family", goal:"認識家人英文名稱。",
+      items:[{char:"Dad",sound:"Dad",label:"👨 爸爸"},{char:"Mom",sound:"Mom",label:"👩 媽媽"},{char:"Sister",sound:"Sister",label:"👧 姊姊"},{char:"Brother",sound:"Brother",label:"👦 哥哥"}],
+      quiz:{q:"媽媽英文是？",opts:["Dad","Mom","Sister","Cat"],ans:1},
+      writing:["Dad","Mom"]},
+    life:{title:"我會照顧自己", goal:"學會自己穿衣、刷牙、洗手。",
+      items:[{char:"👕",sound:"穿衣",label:"自己穿衣"},{char:"🪥",sound:"刷牙",label:"早晚刷牙"},{char:"🧼",sound:"洗手",label:"飯前洗手"},{char:"🛏️",sound:"摺被",label:"自己摺被"}],
+      quiz:{q:"吃飯前要先做什麼？",opts:["看電視","洗手","玩手機","睡覺"],ans:1}}},
+
+  {week:4, theme:"大自然的朋友",
+    zh:{title:"介音 ㄧㄨㄩ", goal:"認識介音並學會基本拼音。",
+      items:[{char:"ㄧ",sound:"一",label:"一 yī"},{char:"ㄨ",sound:"五",label:"五 wǔ"},{char:"ㄩ",sound:"魚",label:"魚 yú"}],
+      quiz:{q:"「魚」用哪個介音？",opts:["ㄧ","ㄨ","ㄩ"],ans:2},
+      writing:["ㄧ","ㄨ","ㄩ"]},
+    math:{title:"10 以內減法", goal:"理解減法是拿走或剩下。",
+      items:[{char:"5-2=3",sound:"五減二等於三",label:"🍎×5 拿走 2"},{char:"8-3=5",sound:"八減三等於五",label:"⭐×8 拿走 3"},{char:"10-4=6",sound:"十減四等於六",label:""},{char:"7-5=2",sound:"七減五等於二",label:""}],
+      quiz:{q:"9 - 4 = ?",opts:["3","4","5","6"],ans:2},
+      writing:["-","="]},
+    en:{title:"動物 Animals", goal:"認識常見動物英文。",
+      items:[{char:"Cat",sound:"Cat",label:"🐱 貓"},{char:"Dog",sound:"Dog",label:"🐶 狗"},{char:"Bird",sound:"Bird",label:"🐦 鳥"},{char:"Fish",sound:"Fish",label:"🐟 魚"}],
+      quiz:{q:"🐶 英文是？",opts:["Cat","Dog","Bird","Fish"],ans:1},
+      writing:["Cat","Dog"]},
+    life:{title:"觀察大自然", goal:"觀察自然、整理書桌、愛護環境。",
+      items:[{char:"🌳",sound:"樹木",label:"觀察樹木"},{char:"🌧️",sound:"天氣",label:"認識天氣"},{char:"♻️",sound:"回收",label:"資源回收"},{char:"🗑️",sound:"分類",label:"垃圾分類"}],
+      quiz:{q:"紙類要丟在哪個桶子？",opts:["一般垃圾","回收","廚餘"],ans:1}}},
+
+  {week:5, theme:"美味的食物",
+    zh:{title:"單韻母 ㄚㄛㄜㄝ", goal:"認識基本韻母與拼音。",
+      items:[{char:"ㄚ",sound:"啊",label:"ㄅㄚˋ 爸"},{char:"ㄛ",sound:"喔",label:"ㄅㄛ 玻"},{char:"ㄜ",sound:"呃",label:"ㄍㄜ 歌"},{char:"ㄝ",sound:"耶",label:"ㄒㄧㄝˇ 寫"}],
+      quiz:{q:"「爸」字的韻母是？",opts:["ㄚ","ㄛ","ㄜ","ㄝ"],ans:0},
+      writing:["ㄚ","ㄛ","ㄜ","ㄝ"]},
+    math:{title:"認識形狀", goal:"認識圓、正方形、三角形、長方形。",
+      items:[{char:"●",sound:"圓形",label:"圓形 ⚽"},{char:"■",sound:"正方形",label:"正方形 🎁"},{char:"▲",sound:"三角形",label:"三角形 🍕"},{char:"▬",sound:"長方形",label:"長方形 📱"}],
+      quiz:{q:"皮球是什麼形狀？",opts:["圓形","三角形","正方形"],ans:0},
+      writing:["○","△","□"]},
+    en:{title:"食物 Food", goal:"認識常見食物英文。",
+      items:[{char:"Rice",sound:"Rice",label:"🍚 飯"},{char:"Milk",sound:"Milk",label:"🥛 牛奶"},{char:"Bread",sound:"Bread",label:"🍞 麵包"},{char:"Egg",sound:"Egg",label:"🥚 蛋"}],
+      quiz:{q:"🥛 英文是？",opts:["Milk","Rice","Egg","Bread"],ans:0},
+      writing:["Rice","Milk"]},
+    life:{title:"健康吃飯時間", goal:"學會均衡飲食與餐桌禮儀。",
+      items:[{char:"🥬",sound:"蔬菜",label:"多吃蔬菜"},{char:"💧",sound:"喝水",label:"多喝水"},{char:"🍭",sound:"少糖",label:"少吃糖果"},{char:"🍴",sound:"細嚼",label:"細嚼慢嚥"}],
+      quiz:{q:"每天最重要的飲料是？",opts:["果汁","牛奶","汽水","水"],ans:3}}},
+
+  {week:6, theme:"快樂的時光",
+    zh:{title:"複韻母 ㄞㄟㄠㄡ", goal:"認識複韻母並拼讀。",
+      items:[{char:"ㄞ",sound:"愛",label:"ㄞˋ 愛"},{char:"ㄟ",sound:"欸",label:"ㄟˋ 欸"},{char:"ㄠ",sound:"奧",label:"ㄠˋ 奧"},{char:"ㄡ",sound:"偶",label:"ㄡˇ 偶"}],
+      quiz:{q:"「愛」的韻母是？",opts:["ㄞ","ㄟ","ㄠ","ㄡ"],ans:0},
+      writing:["ㄞ","ㄟ","ㄠ","ㄡ"]},
+    math:{title:"比大小與混合", goal:"能比較數字大小並做混合計算。",
+      items:[{char:"7>5",sound:"七大於五",label:"7 比 5 大"},{char:"3<8",sound:"三小於八",label:"3 比 8 小"},{char:"2+3-1=4",sound:"二加三減一等於四",label:""},{char:"5-2+4=7",sound:"五減二加四等於七",label:""}],
+      quiz:{q:"6 + 2 - 3 = ?",opts:["4","5","6"],ans:1},
+      writing:[">","<","="]},
+    en:{title:"數字 1-10", goal:"認識並讀出 1-10 英文。",
+      items:[{char:"One",sound:"One",label:"1️⃣"},{char:"Two",sound:"Two",label:"2️⃣"},{char:"Three",sound:"Three",label:"3️⃣"},{char:"Four",sound:"Four",label:"4️⃣"},{char:"Five",sound:"Five",label:"5️⃣"}],
+      quiz:{q:"3 的英文是？",opts:["One","Two","Three","Four"],ans:2},
+      writing:["One","Two"]},
+    life:{title:"認識時間", goal:"認識時鐘與作息安排。",
+      items:[{char:"🌅",sound:"早晨",label:"早晨起床"},{char:"📚",sound:"上學",label:"上學時間"},{char:"🍱",sound:"午餐",label:"午餐時間"},{char:"🛏️",sound:"睡覺",label:"晚上睡覺"}],
+      quiz:{q:"幾點該起床上學？",opts:["凌晨3點","早上7點","晚上9點"],ans:1}}},
+
+  {week:7, theme:"我的小夢想",
+    zh:{title:"鼻韻母 ㄢㄣㄤㄥ", goal:"認識鼻韻母並拼讀。",
+      items:[{char:"ㄢ",sound:"安",label:"ㄢ 安"},{char:"ㄣ",sound:"恩",label:"ㄣˋ 恩"},{char:"ㄤ",sound:"昂",label:"ㄤˊ 昂"},{char:"ㄥ",sound:"鶯",label:"ㄥ 鶯"}],
+      quiz:{q:"「安」的韻母是？",opts:["ㄢ","ㄣ","ㄤ","ㄥ"],ans:0},
+      writing:["ㄢ","ㄣ","ㄤ","ㄥ"]},
+    math:{title:"20 以內加減 & 順序", goal:"做 20 以內加減運算，認識第幾名。",
+      items:[{char:"12+5=17",sound:"十二加五等於十七",label:""},{char:"18-6=12",sound:"十八減六等於十二",label:""},{char:"第1",sound:"第一",label:"🥇"},{char:"第2",sound:"第二",label:"🥈"},{char:"第3",sound:"第三",label:"🥉"}],
+      quiz:{q:"14 + 3 = ?",opts:["16","17","18"],ans:1},
+      writing:["第","名"]},
+    en:{title:"顏色 Colors", goal:"認識常用顏色英文。",
+      items:[{char:"Red",sound:"Red",label:"🔴 紅"},{char:"Blue",sound:"Blue",label:"🔵 藍"},{char:"Yellow",sound:"Yellow",label:"🟡 黃"},{char:"Green",sound:"Green",label:"🟢 綠"}],
+      quiz:{q:"🔴 是哪個顏色？",opts:["Red","Blue","Yellow","Green"],ans:0},
+      writing:["Red","Blue"]},
+    life:{title:"訂我的小目標", goal:"學會訂目標、想辦法解決困難。",
+      items:[{char:"🎯",sound:"目標",label:"訂小目標"},{char:"💪",sound:"堅持",label:"堅持練習"},{char:"🤔",sound:"想辦法",label:"想辦法"},{char:"❤️",sound:"求助",label:"求助大人"}],
+      quiz:{q:"遇到不會的事情可以？",opts:["放棄","哭鬧","想辦法或問人","發脾氣"],ans:2}}},
+
+  {week:8, theme:"我準備好上小一了！",
+    zh:{title:"綜合 & 認讀國字", goal:"複習注音、認讀常見國字。",
+      items:[{char:"大",sound:"大",label:"ㄉㄚˋ"},{char:"小",sound:"小",label:"ㄒㄧㄠˇ"},{char:"上",sound:"上",label:"ㄕㄤˋ"},{char:"下",sound:"下",label:"ㄒㄧㄚˋ"},{char:"人",sound:"人",label:"ㄖㄣˊ"},{char:"口",sound:"口",label:"ㄎㄡˇ"}],
+      quiz:{q:"「人」的注音是？",opts:["ㄖㄣˊ","ㄖㄣˇ","ㄖㄢˊ"],ans:0},
+      writing:["大","小","上","下","人","口"]},
+    math:{title:"應用題綜合", goal:"用所學解決生活情境題。",
+      items:[{char:"題1",sound:"題目一",label:"小明有 5 顆糖,弟弟有 3 顆,共幾顆?"},{char:"題2",sound:"題目二",label:"媽媽買 10 個蘋果,吃掉 4 個,剩幾個?"},{char:"題3",sound:"題目三",label:"班上 8 男 7 女,共幾人?"}],
+      quiz:{q:"小明 7 元,媽媽再給 5 元,他有幾元？",opts:["10","11","12","13"],ans:2}},
+    en:{title:"問候句 Greetings", goal:"會用簡單英文打招呼、自我介紹。",
+      items:[{char:"Hello",sound:"Hello",label:"👋 你好"},{char:"Bye",sound:"Bye",label:"👋 再見"},{char:"Thank you",sound:"Thank you",label:"🙏 謝謝"},{char:"I am",sound:"I am",label:"我是 ___"}],
+      quiz:{q:"見到老師打招呼可以說？",opts:["Bye","Hello","No"],ans:1},
+      writing:["Hello","Hi"]},
+    life:{title:"我準備好了！", goal:"檢查所有準備、迎接開學日。",
+      items:[{char:"📝",sound:"作息",label:"作息規律"},{char:"🎒",sound:"書包",label:"書包整齊"},{char:"😊",sound:"勇敢",label:"勇敢表達"},{char:"🤝",sound:"朋友",label:"交新朋友"}],
+      quiz:{q:"上小學最重要的是？",opts:["考第一名","快樂學習","帶玩具"],ans:1}}}
+];
+
+const subjectMeta = {
+  zh:{name:"📖 國語",color:"#FF8FA3"},
+  math:{name:"🔢 數學",color:"#7AC7E5"},
+  en:{name:"🔤 英語",color:"#FFD93D"},
+  life:{name:"🌟 生活",color:"#6BCB77"}
+};
+
+let currentWeek = 1, currentSubject = "zh";
+
+function renderWeekNav(){
+  document.getElementById("weekNav").innerHTML = curriculum.map(w =>
+    `<button class="week-btn ${w.week===currentWeek?'active':''}" onclick="selectWeek(${w.week})">
+      <span class="num">第 ${w.week} 週</span>${w.theme}
+    </button>`).join("");
+}
+function renderSubjectTabs(){
+  document.getElementById("subjectTabs").innerHTML = Object.keys(subjectMeta).map(k =>
+    `<button class="subject-btn ${k===currentSubject?'active':''}" data-s="${k}" onclick="selectSubject('${k}')">
+      ${subjectMeta[k].name}
+    </button>`).join("");
+}
+function renderLesson(){
+  const week = curriculum.find(w => w.week===currentWeek);
+  const lesson = week[currentSubject];
+  const itemsHtml = lesson.items.map(it =>
+    `<div class="item-card ${currentSubject}" onclick="speak('${it.sound}')">
+      ${it.char}<span class="label">${it.label||""}</span>
+    </div>`).join("");
+
+  const writingHtml = lesson.writing ?
+    `<h3>✏️ 跟著寫一寫</h3>
+    <div class="writing-area">
+      <p style="color:#888;font-size:.9em;margin-bottom:8px">在虛線格裡描寫，或列印練習本練習：</p>
+      <div class="stroke-grid">${lesson.writing.map(c=>`<div class="stroke-cell">${c}</div>`).join("")}</div>
+    </div>` : "";
+
+  const quizHtml = lesson.quiz ?
+    `<h3>🎯 小試身手</h3>
+    <div class="quiz">
+      <div class="q">${lesson.quiz.q}</div>
+      <div class="options">
+        ${lesson.quiz.opts.map((o,i)=>
+          `<button class="opt" onclick="checkAns(this,${i},${lesson.quiz.ans})">${o}</button>`).join("")}
+      </div>
+      <div class="feedback"></div>
+    </div>` : "";
+
+  document.getElementById("lessonContent").innerHTML =
+    `<div class="lesson">
+      <h2>第 ${week.week} 週｜${week.theme}</h2>
+      <div style="color:#888;margin-bottom:8px">${subjectMeta[currentSubject].name}・${lesson.title}</div>
+      <div class="goal">🎯 學習目標：${lesson.goal}</div>
+      <h3>👀 點一點，聽發音</h3>
+      <div class="grid-items">${itemsHtml}</div>
+      ${writingHtml}
+      ${quizHtml}
+    </div>`;
+}
+
+function selectWeek(w){currentWeek=w;renderWeekNav();renderLesson();window.scrollTo({top:200,behavior:'smooth'})}
+function selectSubject(s){currentSubject=s;renderSubjectTabs();renderLesson()}
+
+function speak(text){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const isEn = /^[A-Za-z\s]+$/.test(text);
+  u.lang = isEn ? "en-US" : "zh-TW";
+  u.rate = 0.8;
+  speechSynthesis.speak(u);
+}
+
+function checkAns(btn, idx, ans){
+  const parent = btn.parentElement;
+  const feedback = parent.parentElement.querySelector(".feedback");
+  parent.querySelectorAll(".opt").forEach(b=>b.style.pointerEvents='none');
+  if(idx===ans){
+    btn.classList.add("correct");
+    feedback.style.color = "#6BCB77";
+    feedback.textContent = "✅ 答對了！太棒了！";
+    setTimeout(()=>showReward(),800);
+  }else{
+    btn.classList.add("wrong");
+    parent.querySelectorAll(".opt")[ans].classList.add("correct");
+    feedback.style.color = "#FF8FA3";
+    feedback.textContent = "💪 沒關係，正確答案幫你標出來囉～";
+    setTimeout(()=>{
+      parent.querySelectorAll(".opt").forEach(b=>{b.style.pointerEvents='auto';b.classList.remove('correct','wrong')});
+      feedback.textContent="";
+    },2500);
+  }
+}
+function showReward(){document.getElementById("reward").classList.add("show")}
+function closeReward(){document.getElementById("reward").classList.remove("show")}
+
+renderWeekNav();
+renderSubjectTabs();
+renderLesson();
+</script>
+</body>
+</html>
