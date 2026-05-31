@@ -272,6 +272,11 @@
     每天建議學習 30-40 分鐘，分 2 次完成（早上 20 分鐘國語+數學，下午 15 分鐘英語+生活）。
     陪伴時請多鼓勵、少糾正，讓孩子保持對學習的好奇心 ❤️
     點任一卡片可以聽發音；做完小試身手會得到星星獎勵！
+    <br><br>
+    <strong>🔊 想聽更自然的語音？</strong>
+    Windows 用戶可到「設定 → 時間與語言 → 語音 → 新增語音」搜尋「<strong>HsiaoChen (Natural)</strong>」並安裝，
+    Mac 用戶到「系統設定 → 輔助使用 → 朗讀內容 → 系統語音」選「Meijia」或「Yating」，
+    安裝後本網頁會自動使用該語音，聽起來會更像真人。
   </div>
 </div>
 
@@ -492,13 +497,50 @@ function selectWeek(w){currentWeek=w;
 renderWeekNav();renderLesson();window.scrollTo({top:200,behavior:'smooth'})}
 function selectSubject(s){currentSubject=s;renderSubjectTabs();renderLesson()}
 
+// ===== 語音系統：挑系統內最自然的中文/英文語音 =====
+let _voices = [];
+function _loadVoices(){
+  _voices = speechSynthesis.getVoices();
+}
+if('speechSynthesis' in window){
+  _loadVoices();
+  speechSynthesis.onvoiceschanged = _loadVoices;
+}
+function _pickVoice(isEn){
+  if(!_voices.length) _voices = speechSynthesis.getVoices();
+  const candidates = _voices.filter(v =>
+    isEn ? /^en/i.test(v.lang)
+         : /zh|cmn/i.test(v.lang)
+  );
+  if(!candidates.length) return null;
+  // 偏好順序：Natural > Online > 特定高品質語音名 > 第一個
+  const priority = isEn ? [
+    /Natural/i, /Online/i, /Aria/i, /Jenny/i, /Guy/i,
+    /Samantha/i, /Karen/i, /Daniel/i, /Allison/i,
+  ] : [
+    /Natural/i, /HsiaoChen/i, /HsiaoYu/i, /Yating/i, /YunJhe/i,
+    /Online/i, /Hanhan/i, /Hsiao/i, /Zhiyu/i, /Yaoyao/i,
+    /Mei-Jia/i, /Meijia/i, /Sin-Ji/i, /Ting-Ting/i,
+    /tw/i, /TW/i,
+  ];
+  for(const pat of priority){
+    const v = candidates.find(c => pat.test(c.name));
+    if(v) return v;
+  }
+  return candidates[0];
+}
+
 function speak(text){
   if(!('speechSynthesis' in window))return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   const isEn = /^[A-Za-z\s,.!?'"-]+$/.test(text);
   u.lang = isEn ? "en-US" : "zh-TW";
-  u.rate = 0.65;
+  const voice = _pickVoice(isEn);
+  if(voice) u.voice = voice;
+  u.rate = isEn ? 0.85 : 0.9;        // 更接近自然語速
+  u.pitch = 1.05 + Math.random()*0.1; // 微微音調變化，不單調
+  u.volume = 1;
   speechSynthesis.speak(u);
 }
 
