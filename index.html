@@ -392,8 +392,8 @@ function renderLesson(){
     </div>`;
 }
 
-function selectWeek(w){currentWeek=w;
-renderWeekNav();renderLesson();window.scrollTo({top:200,behavior:'smooth'})}
+function selectWeek(w){currentWeek=w;currentDay=1;renderWeekNav();renderDayNav();renderLesson();window.scrollTo({top:200,behavior:'smooth'})}
+function selectDay(d){currentDay=d;renderDayNav();renderLesson();window.scrollTo({top:300,behavior:'smooth'})}
 function selectSubject(s){currentSubject=s;renderSubjectTabs();renderLesson()}
 
 // ===== 語音系統：挑系統內最自然的中文/英文語音 =====
