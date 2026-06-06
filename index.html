@@ -721,39 +721,102 @@ function genQuizzes(weekObj, subject, lesson){
   const items = lesson.items || [];
 
   if(subject === 'zh'){
-    if(lesson.quiz) quizzes.push(lesson.quiz);
-    items.forEach(it => {
-      const wrongPool = items.map(i => i.char);
-      const {opts, ans} = _makeOpts(it.char, wrongPool, 4);
-      quizzes.push({ q: '「' + it.sound + '」開頭的注音是？', opts, ans });
+    // 全域聲符池（單個注音字母 ㄅㄆㄇㄈ...）
+    const allZhLetters = new Set();
+    const allZhWords = new Set();
+    curriculum.forEach(function(w){
+      (w.days||[]).forEach(function(d){
+        ((d.zh||{}).items||[]).forEach(function(it){
+          if(it.char && it.char.length===1 && /[\u3105-\u3129]/.test(it.char)){
+            allZhLetters.add(it.char);
+          }
+          if(it.sound && /^[\u4e00-\u9fff]{2,4}$/.test(it.sound)){
+            allZhWords.add(it.sound);
+          }
+        });
+      });
     });
-    items.forEach(it => {
-      const wrongPool = items.map(i => i.sound);
-      const {opts, ans} = _makeOpts(it.sound, wrongPool, 4);
-      quizzes.push({ q: '注音「' + it.char + '」對應的詞是？', opts, ans });
+    const letterPool = Array.from(allZhLetters);
+    const wordPool = Array.from(allZhWords);
+
+    // 今日的聲符（單字注音）與例詞
+    const todayLetters = items.filter(it => it.char && it.char.length===1 && /[\u3105-\u3129]/.test(it.char)).map(i => i.char);
+    const todayWords = items.filter(it => it.sound && /^[\u4e00-\u9fff]{2,4}$/.test(it.sound)).map(i => i.sound);
+
+    if(todayLetters.length === 0 && todayWords.length === 0){
+      if(lesson.quiz) quizzes.push(lesson.quiz);
+      return quizzes;
+    }
+
+    // 題型 1：詞 → 注音（5-6 題）
+    const correctLetter = todayLetters[0] || items[0].char;
+    todayWords.forEach(word => {
+      const wrongs = letterPool.filter(l => l !== correctLetter);
+      const {opts, ans} = _makeOpts(correctLetter, wrongs, 4);
+      quizzes.push({q: '「' + word + '」開頭的注音是？', opts, ans});
     });
+
+    // 題型 2：注音 → 詞（4 題）
+    todayLetters.forEach(letter => {
+      todayWords.slice(0, 4).forEach(word => {
+        const wrongs = wordPool.filter(w => w !== word);
+        const {opts, ans} = _makeOpts(word, wrongs, 4);
+        quizzes.push({q: '注音「' + letter + '」可以開頭哪個詞？', opts, ans});
+      });
+    });
+
   } else if(subject === 'en'){
-    if(lesson.quiz) quizzes.push(lesson.quiz);
-    items.forEach(it => {
-      const word = _enWordOf(it);
-      const letter = _firstLetter(it);
-      const wrongPool = items.map(i => _firstLetter(i));
-      const {opts, ans} = _makeOpts(letter, wrongPool, 4);
-      quizzes.push({ q: word + ' 開頭的字母是？', opts, ans });
+    // 全域字母池與單字池
+    const allEnLetters = new Set();
+    const allEnWords = new Set();
+    curriculum.forEach(function(w){
+      (w.days||[]).forEach(function(d){
+        ((d.en||{}).items||[]).forEach(function(it){
+          if(it.char && it.char.length===1 && /^[A-Za-z]$/.test(it.char)){
+            allEnLetters.add(it.char.toUpperCase());
+          }
+          if(it.char && /^[A-Z][a-z]+$/.test(it.char)){
+            allEnWords.add(it.char);
+          }
+        });
+      });
     });
-    items.forEach(it => {
-      const word = _enWordOf(it);
-      const wrongPool = items.map(i => _enWordOf(i));
-      const {opts, ans} = _makeOpts(word, wrongPool, 4);
-      quizzes.push({ q: '字母 ' + it.char + ' 對應的單字是？', opts, ans });
+    const letterPool = Array.from(allEnLetters);
+    const wordPool = Array.from(allEnWords);
+
+    // 今日的字母與單字
+    const todayLetters = items.filter(it => it.char && it.char.length===1 && /^[A-Za-z]$/.test(it.char)).map(i => i.char.toUpperCase());
+    const todayWords = items.filter(it => it.char && /^[A-Z][a-z]+$/.test(it.char)).map(i => i.char);
+
+    if(todayLetters.length === 0 && todayWords.length === 0){
+      if(lesson.quiz) quizzes.push(lesson.quiz);
+      return quizzes;
+    }
+
+    // 題型 1：單字 → 字母（5-6 題）
+    const correctLetter = todayLetters[0] || todayWords[0][0].toUpperCase();
+    todayWords.forEach(word => {
+      const wrongs = letterPool.filter(l => l !== correctLetter);
+      const {opts, ans} = _makeOpts(correctLetter, wrongs, 4);
+      quizzes.push({q: word + ' 開頭的字母是？', opts, ans});
     });
+
+    // 題型 2：字母 → 單字
+    todayLetters.forEach(letter => {
+      todayWords.forEach(word => {
+        const wrongs = wordPool.filter(w => w !== word);
+        const {opts, ans} = _makeOpts(word, wrongs, 4);
+        quizzes.push({q: '字母 ' + letter + ' 開頭的單字是？', opts, ans});
+      });
+    });
+
   } else if(subject === 'math'){
     const gen = mathGen[weekObj.week];
-    if(gen) quizzes.push(...gen());
+    if(gen) quizzes.push.apply(quizzes, gen());
     else if(lesson.quiz) quizzes.push(lesson.quiz);
   } else if(subject === 'life'){
     const pool = lifeQuizPools[weekObj.week] || [];
-    quizzes.push(...pool);
+    quizzes.push.apply(quizzes, pool);
     if(quizzes.length < 10 && lesson.quiz) quizzes.push(lesson.quiz);
   }
 
